@@ -1,0 +1,23 @@
+# ───────────────────────────────────────────────────────────────────────────
+#  FALLBACK ONLY — you usually do NOT need this file.
+#
+#  The recommended setup is to point your domain's Document Root at the
+#  "public" folder:  hPanel → Domains → (your domain) → Document Root →
+#  set it to  public_html/public
+#
+#  Use this file ONLY if your plan won't let you change the document root.
+#  It forwards every request into Laravel's public/ folder and blocks
+#  access to sensitive files. Keep it named ".htaccess" at the project root
+#  (the folder that contains "artisan" and the "public" folder).
+# ───────────────────────────────────────────────────────────────────────────
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ /public/$1 [L]
+</IfModule>
+
+# Never serve dotfiles (.env, .htaccess copies, etc.)
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>

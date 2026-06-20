@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="750" viewBox="0 0 1200 750" fill="none" role="img" aria-label="Project cover placeholder">
+  <defs>
+    <linearGradient id="pr-bg" x1="0" y1="0" x2="1200" y2="750" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4f46e5"/>
+      <stop offset="1" stop-color="#0f766e"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="750" fill="url(#pr-bg)"/>
+  <circle cx="980" cy="170" r="250" fill="#818cf8" fill-opacity="0.3"/>
+  <circle cx="200" cy="640" r="220" fill="#0f172a" fill-opacity="0.25"/>
+  <g stroke="#ffffff" stroke-opacity="0.07" stroke-width="1">
+    <path d="M0 250 H1200 M0 500 H1200 M300 0 V750 M600 0 V750 M900 0 V750"/>
+  </g>
+
+  <!-- shopping bag motif -->
+  <g transform="translate(900 440)" stroke="#ffffff" stroke-opacity="0.45" stroke-width="10" fill="none">
+    <path d="M-90 -40 H90 L70 130 H-70 Z" stroke-linejoin="round"/>
+    <path d="M-45 -40 a45 55 0 0 1 90 0" stroke-linecap="round"/>
+  </g>
+
+  <g transform="translate(150 300)">
+    <rect x="0" y="0" width="150" height="150" rx="34" fill="#ffffff" fill-opacity="0.12" stroke="#ffffff" stroke-opacity="0.5" stroke-width="2"/>
+    <text x="75" y="103" text-anchor="middle" font-family="Cairo, system-ui, sans-serif" font-size="84" font-weight="800" fill="#ffffff">P</text>
+  </g>
+
+  <g font-family="Cairo, system-ui, sans-serif" fill="#ffffff">
+    <text x="150" y="540" font-size="62" font-weight="800">Printly</text>
+    <text x="152" y="600" font-size="30" font-weight="600" fill="#c7d2fe">E-commerce</text>
+  </g>
+
+  <g transform="translate(1050 690)" text-anchor="end" font-family="Cairo, system-ui, sans-serif">
+    <text fill="#e2e8f0" fill-opacity="0.7" font-size="24" font-weight="600">Cover placeholder</text>
+  </g>
+</svg>

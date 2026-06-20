@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600" fill="none" role="img" aria-label="Service illustration placeholder">
+  <defs>
+    <linearGradient id="web-bg" x1="0" y1="0" x2="800" y2="600" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1e1b4b"/>
+      <stop offset="1" stop-color="#0f172a"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" rx="28" fill="url(#web-bg)"/>
+  <circle cx="640" cy="160" r="150" fill="#4f46e5" fill-opacity="0.22"/>
+  <circle cx="150" cy="470" r="120" fill="#14b8a6" fill-opacity="0.2"/>
+
+  <!-- globe -->
+  <g transform="translate(400 270)" stroke="#5eead4" stroke-width="3" fill="none">
+    <circle r="150" fill="#0f172a" fill-opacity="0.5" stroke="#818cf8"/>
+    <ellipse rx="60" ry="150"/>
+    <ellipse rx="120" ry="150"/>
+    <line x1="-150" y1="0" x2="150" y2="0"/>
+    <path d="M-138 -64 H138 M-138 64 H138"/>
+  </g>
+  <g transform="translate(400 270)">
+    <circle cx="-70" cy="-50" r="9" fill="#14b8a6"/>
+    <circle cx="60" cy="20" r="9" fill="#818cf8"/>
+    <circle cx="10" cy="90" r="9" fill="#5eead4"/>
+  </g>
+
+  <g transform="translate(400 510)" text-anchor="middle" font-family="Cairo, system-ui, sans-serif">
+    <text fill="#cbd5e1" font-size="26" font-weight="700">Illustration placeholder</text>
+  </g>
+</svg>

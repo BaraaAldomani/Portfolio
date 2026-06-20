@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000" fill="none" role="img" aria-label="Professional portrait placeholder">
+  <defs>
+    <linearGradient id="pt-bg" x1="0" y1="0" x2="800" y2="1000" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#eef1f6"/>
+      <stop offset="1" stop-color="#dfe4ee"/>
+    </linearGradient>
+    <linearGradient id="pt-fig" x1="400" y1="300" x2="400" y2="1000" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#aeb8cc"/>
+      <stop offset="1" stop-color="#8b97b0"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="1000" rx="28" fill="url(#pt-bg)"/>
+  <circle cx="630" cy="190" r="150" fill="#ffffff" fill-opacity="0.5"/>
+  <circle cx="150" cy="840" r="190" fill="#ffffff" fill-opacity="0.35"/>
+
+  <!-- head + shoulders silhouette -->
+  <g transform="translate(400 560)">
+    <circle cx="0" cy="-150" r="120" fill="url(#pt-fig)"/>
+    <path d="M-230 320 C-230 110 -120 40 0 40 C120 40 230 110 230 320 Z" fill="url(#pt-fig)"/>
+  </g>
+
+  <!-- label -->
+  <g transform="translate(400 880)" text-anchor="middle" font-family="Geist, system-ui, sans-serif">
+    <rect x="-150" y="-32" width="300" height="64" rx="32" fill="#ffffff" fill-opacity="0.75" stroke="#c4ccdb"/>
+    <text y="7" fill="#5a6477" font-size="28" font-weight="600">Your photo here</text>
+  </g>
+</svg>

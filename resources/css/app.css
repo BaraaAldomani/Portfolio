@@ -1,0 +1,492 @@
+@import 'tailwindcss';
+@import './tokens.css';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+/*
+ * Tailwind v4 theme — maps utilities onto the design tokens.
+ * This file defines NO colors: every value below references
+ * resources/css/tokens.css. Edit colors there, never here.
+ */
+@theme {
+    /* Wipe Tailwind's stock palette so off-brand utilities
+       (bg-red-500, text-zinc-400, …) simply don't exist. */
+    --color-*: initial;
+
+    --font-sans: 'Cairo', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-mono: ui-monospace, 'Cascadia Code', 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+}
+
+@theme inline {
+    --color-white: var(--brand-white);
+    --color-black: var(--brand-black);
+
+    /* bg-primary / bg-primary-600 / text-primary-300 … */
+    --color-primary: var(--brand-primary);
+    --color-primary-50: var(--brand-primary-50);
+    --color-primary-100: var(--brand-primary-100);
+    --color-primary-200: var(--brand-primary-200);
+    --color-primary-300: var(--brand-primary-300);
+    --color-primary-400: var(--brand-primary-400);
+    --color-primary-500: var(--brand-primary-500);
+    --color-primary-600: var(--brand-primary-600);
+    --color-primary-700: var(--brand-primary-700);
+    --color-primary-800: var(--brand-primary-800);
+    --color-primary-900: var(--brand-primary-900);
+    --color-primary-950: var(--brand-primary-950);
+
+    --color-secondary: var(--brand-secondary);
+
+    --color-accent: var(--brand-accent);
+    --color-accent-50: var(--brand-accent-50);
+    --color-accent-100: var(--brand-accent-100);
+    --color-accent-200: var(--brand-accent-200);
+    --color-accent-300: var(--brand-accent-300);
+    --color-accent-400: var(--brand-accent-400);
+    --color-accent-500: var(--brand-accent-500);
+    --color-accent-600: var(--brand-accent-600);
+    --color-accent-700: var(--brand-accent-700);
+    --color-accent-800: var(--brand-accent-800);
+    --color-accent-900: var(--brand-accent-900);
+    --color-accent-950: var(--brand-accent-950);
+
+    --color-neutral-50: var(--brand-neutral-50);
+    --color-neutral-100: var(--brand-neutral-100);
+    --color-neutral-200: var(--brand-neutral-200);
+    --color-neutral-300: var(--brand-neutral-300);
+    --color-neutral-400: var(--brand-neutral-400);
+    --color-neutral-500: var(--brand-neutral-500);
+    --color-neutral-600: var(--brand-neutral-600);
+    --color-neutral-700: var(--brand-neutral-700);
+    --color-neutral-800: var(--brand-neutral-800);
+    --color-neutral-900: var(--brand-neutral-900);
+    --color-neutral-950: var(--brand-neutral-950);
+
+    /* Semantic utilities: bg-surface, bg-surface-dark, text-muted, border-line … */
+    --color-surface: var(--brand-surface);
+    --color-surface-muted: var(--brand-surface-muted);
+    --color-surface-dark: var(--brand-surface-dark);
+    --color-surface-dark-soft: var(--brand-surface-dark-soft);
+    --color-ink: var(--brand-text);
+    --color-muted: var(--brand-text-muted);
+    --color-ink-on-dark: var(--brand-text-on-dark);
+    --color-muted-on-dark: var(--brand-text-muted-on-dark);
+    --color-line: var(--brand-line);
+    --color-line-on-dark: var(--brand-line-on-dark);
+
+    --color-danger: var(--brand-danger);
+    --color-danger-soft: var(--brand-danger-soft);
+    --color-success: var(--brand-success);
+    --color-success-soft: var(--brand-success-soft);
+}
+
+/* ════════════════════════════════════════════════════════════
+   Base
+   ════════════════════════════════════════════════════════════ */
+@layer base {
+    html {
+        scroll-behavior: smooth;
+    }
+
+    ::selection {
+        background: var(--brand-accent-200);
+        color: var(--brand-text);
+    }
+
+    :focus-visible {
+        outline: 2px solid var(--brand-primary);
+        outline-offset: 2px;
+    }
+}
+
+/* ════════════════════════════════════════════════════════════
+   Cross-page navigation.
+   Cross-document View Transitions are intentionally DISABLED: they snapshot
+   the incoming page before its on-load entrance choreography runs, and the
+   always-on starfield canvas keeps the page from "settling", so the transition
+   gets skipped and can freeze the hero in its pre-animation (hidden) state.
+   Pages just navigate normally; each page still plays its own entrance motion.
+   ════════════════════════════════════════════════════════════ */
+@view-transition {
+    navigation: none;
+}
+
+/* ════════════════════════════════════════════════════════════
+   Scroll-reveal system (used by resources/js/animations.js)
+
+   - Hidden states apply ONLY under `html.js`, so content is fully
+     visible before JS loads and for non-JS visitors / crawlers.
+   - Animates transform + opacity only (GPU-composited, no layout).
+   - `.reveal`        → fade + rise
+   - `.reveal-start`  → fade + slide from inline-start (flips in RTL)
+   - `--d` is the stagger delay, set by animations.js on children
+     of [data-stagger] containers.
+   ════════════════════════════════════════════════════════════ */
+html.js .reveal,
+html.js .reveal-start {
+    opacity: 0;
+    transform: translate3d(var(--rx, 0), var(--ry, 0), 0);
+    transition:
+        opacity 0.6s ease,
+        transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: var(--d, 0s);
+}
+
+html.js .reveal {
+    --ry: 1.5rem;
+}
+
+html.js .reveal-start {
+    --rx: -1.5rem;
+}
+
+html[dir='rtl'].js .reveal-start {
+    --rx: 1.5rem;
+}
+
+html.js .reveal.in,
+html.js .reveal-start.in {
+    opacity: 1;
+    transform: none;
+}
+
+/* ════════════════════════════════════════════════════════════
+   Nav link — sliding underline (origin flips with direction)
+   ════════════════════════════════════════════════════════════ */
+.nav-link {
+    position: relative;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    bottom: -0.25rem;
+    height: 2px;
+    border-radius: 1px;
+    background: var(--brand-primary);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[dir='rtl'] .nav-link::after {
+    transform-origin: right;
+}
+
+.nav-link:hover::after,
+.nav-link[aria-current='page']::after {
+    transform: scaleX(1);
+}
+
+/* ════════════════════════════════════════════════════════════
+   Hero terminal
+   ════════════════════════════════════════════════════════════ */
+.terminal-body {
+    font-family: var(--font-mono);
+    direction: ltr;
+    text-align: left;
+}
+
+.terminal-line-comment {
+    color: var(--brand-neutral-400);
+}
+
+.terminal-line-code {
+    color: var(--brand-accent-200);
+}
+
+.terminal-line-output {
+    color: var(--brand-accent-400);
+}
+
+.terminal-cursor {
+    display: inline-block;
+    width: 0.55em;
+    height: 1.1em;
+    margin-inline-start: 1px;
+    vertical-align: text-bottom;
+    background: var(--brand-accent-400);
+    animation: cursor-blink 1.1s steps(2) infinite;
+}
+
+@keyframes cursor-blink {
+    50% {
+        opacity: 0;
+    }
+}
+
+/* ════════════════════════════════════════════════════════════
+   Hero aurora — slow gradient mesh, colored ONLY by tokens
+   (swap the palette and it recolors automatically).
+   Transform-only animation on blurred, composited layers.
+   ════════════════════════════════════════════════════════════ */
+.aurora {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.aurora-blob {
+    position: absolute;
+    width: 42rem;
+    height: 42rem;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.5;
+    will-change: transform;
+}
+
+.aurora-blob-1 {
+    background: radial-gradient(circle, var(--brand-aurora-1), transparent 65%);
+    top: -14rem;
+    inset-inline-start: -10rem;
+    animation: aurora-drift-1 26s ease-in-out infinite alternate;
+}
+
+.aurora-blob-2 {
+    background: radial-gradient(circle, var(--brand-aurora-2), transparent 65%);
+    bottom: -16rem;
+    inset-inline-end: -12rem;
+    animation: aurora-drift-2 32s ease-in-out infinite alternate;
+}
+
+.aurora-blob-3 {
+    background: radial-gradient(circle, var(--brand-aurora-3), transparent 65%);
+    top: 30%;
+    inset-inline-start: 35%;
+    animation: aurora-drift-3 38s ease-in-out infinite alternate;
+}
+
+@keyframes aurora-drift-1 {
+    to {
+        transform: translate3d(8rem, 6rem, 0) scale(1.15);
+    }
+}
+
+@keyframes aurora-drift-2 {
+    to {
+        transform: translate3d(-7rem, -5rem, 0) scale(1.1) rotate(20deg);
+    }
+}
+
+@keyframes aurora-drift-3 {
+    to {
+        transform: translate3d(-5rem, 4rem, 0) scale(0.9);
+    }
+}
+
+/* ════════════════════════════════════════════════════════════
+   Project cards — 3D tilt + cursor-following glow border.
+   JS (animations.js) drives --mx/--my and the tilt transform on
+   fine pointers only; touch devices get the :active tap state.
+   ════════════════════════════════════════════════════════════ */
+.js-tilt {
+    transform-style: preserve-3d;
+    transition: transform 0.25s ease-out;
+    will-change: transform;
+}
+
+.js-tilt:active {
+    transform: scale(0.985);
+}
+
+.glow-border {
+    position: relative;
+}
+
+.glow-border::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: radial-gradient(14rem circle at var(--mx, 50%) var(--my, 50%), var(--brand-glow), transparent 70%);
+    -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.glow-border:hover::before,
+.glow-border:active::before {
+    opacity: 1;
+}
+
+/* ════════════════════════════════════════════════════════════
+   Magnetic CTA — JS sets the transform; CSS makes it springy.
+   ════════════════════════════════════════════════════════════ */
+.js-magnetic {
+    transition: transform 0.2s ease-out;
+    will-change: transform;
+}
+
+/* Button press state */
+.btn-press:active {
+    transform: scale(0.97);
+}
+
+/* ════════════════════════════════════════════════════════════
+   Reading-progress bar — fixed at the top; JS drives scaleX.
+   transform-origin flips for RTL so it grows from the start edge.
+   ════════════════════════════════════════════════════════════ */
+.scroll-progress {
+    position: fixed;
+    inset-block-start: 0;
+    inset-inline: 0;
+    z-index: 60;
+    height: 3px;
+    transform: scaleX(0);
+    transform-origin: left center;
+    background: linear-gradient(90deg, var(--brand-primary), var(--brand-accent));
+    pointer-events: none;
+}
+
+[dir='rtl'] .scroll-progress {
+    transform-origin: right center;
+}
+
+/* ════════════════════════════════════════════════════════════
+   Word-by-word headline reveal — [data-reveal-text].
+   animations.js wraps each word in .reveal-word and sets --d.
+   ════════════════════════════════════════════════════════════ */
+html.js .reveal-text .reveal-word {
+    display: inline-block;
+    opacity: 0;
+    transform: translate3d(0, 0.6em, 0);
+    transition:
+        opacity 0.5s ease,
+        transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: var(--d, 0s);
+    will-change: transform, opacity;
+}
+
+html.js .reveal-text.in .reveal-word {
+    opacity: 1;
+    transform: none;
+}
+
+/* ════════════════════════════════════════════════════════════
+   Animated gradient text — .gradient-text (colored by tokens).
+   ════════════════════════════════════════════════════════════ */
+.gradient-text {
+    background-image: linear-gradient(
+        100deg,
+        var(--brand-accent-400),
+        var(--brand-primary-300),
+        var(--brand-accent-400)
+    );
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: gradient-pan 6s linear infinite;
+}
+
+@keyframes gradient-pan {
+    to {
+        background-position: 200% 0;
+    }
+}
+
+/* ════════════════════════════════════════════════════════════
+   Section spotlight — .js-spotlight. Soft cursor glow painted on
+   top with screen blend so it lifts content rather than hiding it.
+   JS sets --mx/--my (fine pointers); touch never triggers :hover.
+   ════════════════════════════════════════════════════════════ */
+.js-spotlight {
+    position: relative;
+}
+
+.js-spotlight::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: radial-gradient(28rem circle at var(--mx, 50%) var(--my, 50%), var(--brand-glow), transparent 60%);
+    opacity: 0;
+    mix-blend-mode: screen;
+    transition: opacity 0.4s ease;
+}
+
+.js-spotlight:hover::after {
+    opacity: 1;
+}
+
+/* ════════════════════════════════════════════════════════════
+   Marquee — .js-marquee. The track holds its content TWICE in
+   markup; translating -50% yields a seamless loop. Pauses on hover.
+   ════════════════════════════════════════════════════════════ */
+.js-marquee {
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+
+.js-marquee__track {
+    display: inline-flex;
+    width: max-content;
+    animation: marquee-scroll 32s linear infinite;
+}
+
+.js-marquee:hover .js-marquee__track {
+    animation-play-state: paused;
+}
+
+[dir='rtl'] .js-marquee__track {
+    animation-direction: reverse;
+}
+
+@keyframes marquee-scroll {
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+/* ════════════════════════════════════════════════════════════
+   Reduced motion — kill ALL decorative animation.
+   (animations.js also checks this and reveals content instantly.)
+   ════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    @view-transition {
+        navigation: none;
+    }
+
+    html.js .reveal,
+    html.js .reveal-start {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+
+    html.js .reveal-text .reveal-word {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+
+    .aurora-blob,
+    .terminal-cursor,
+    .gradient-text,
+    .js-marquee__track {
+        animation: none;
+    }
+
+    .js-tilt,
+    .js-magnetic,
+    .js-spotlight::after {
+        transition: none;
+    }
+}

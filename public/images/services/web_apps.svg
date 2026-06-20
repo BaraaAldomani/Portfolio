@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600" fill="none" role="img" aria-label="Service illustration placeholder">
+  <defs>
+    <linearGradient id="wa-bg" x1="0" y1="0" x2="800" y2="600" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0f766e"/>
+      <stop offset="1" stop-color="#0f172a"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" rx="28" fill="url(#wa-bg)"/>
+  <circle cx="150" cy="130" r="150" fill="#14b8a6" fill-opacity="0.22"/>
+  <circle cx="660" cy="500" r="140" fill="#4f46e5" fill-opacity="0.22"/>
+
+  <!-- browser window -->
+  <g transform="translate(190 150)">
+    <rect x="0" y="0" width="320" height="230" rx="16" fill="#ffffff" fill-opacity="0.1" stroke="#5eead4" stroke-width="2"/>
+    <path d="M0 16 a16 16 0 0 1 16 -16 h288 a16 16 0 0 1 16 16 v26 h-320 Z" fill="#ffffff" fill-opacity="0.12"/>
+    <circle cx="22" cy="21" r="6" fill="#f87171"/>
+    <circle cx="44" cy="21" r="6" fill="#fbbf24"/>
+    <circle cx="66" cy="21" r="6" fill="#34d399"/>
+    <rect x="30" y="70" width="150" height="14" rx="7" fill="#ffffff" fill-opacity="0.6"/>
+    <rect x="30" y="98" width="260" height="10" rx="5" fill="#ffffff" fill-opacity="0.3"/>
+    <rect x="30" y="120" width="220" height="10" rx="5" fill="#ffffff" fill-opacity="0.3"/>
+    <rect x="30" y="160" width="120" height="38" rx="19" fill="#14b8a6"/>
+  </g>
+
+  <!-- phone -->
+  <g transform="translate(500 210)">
+    <rect x="0" y="0" width="130" height="240" rx="22" fill="#0f172a" stroke="#818cf8" stroke-width="2"/>
+    <rect x="14" y="30" width="102" height="150" rx="10" fill="#ffffff" fill-opacity="0.1"/>
+    <rect x="34" y="200" width="62" height="14" rx="7" fill="#ffffff" fill-opacity="0.35"/>
+    <rect x="30" y="48" width="70" height="10" rx="5" fill="#5eead4"/>
+    <rect x="30" y="70" width="86" height="8" rx="4" fill="#ffffff" fill-opacity="0.3"/>
+    <rect x="30" y="120" width="86" height="40" rx="10" fill="#4f46e5"/>
+  </g>
+
+  <g transform="translate(400 510)" text-anchor="middle" font-family="Cairo, system-ui, sans-serif">
+    <text fill="#cbd5e1" font-size="26" font-weight="700">Illustration placeholder</text>
+  </g>
+</svg>

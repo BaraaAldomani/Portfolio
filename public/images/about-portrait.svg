@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000" fill="none" role="img" aria-label="Portrait placeholder">
+  <defs>
+    <linearGradient id="ap-bg" x1="0" y1="0" x2="800" y2="1000" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4f46e5"/>
+      <stop offset="1" stop-color="#0f766e"/>
+    </linearGradient>
+    <radialGradient id="ap-glow" cx="0.32" cy="0.28" r="0.8">
+      <stop stop-color="#ffffff" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="800" height="1000" rx="32" fill="url(#ap-bg)"/>
+  <rect width="800" height="1000" rx="32" fill="url(#ap-glow)"/>
+
+  <!-- soft blobs -->
+  <circle cx="660" cy="180" r="140" fill="#ffffff" fill-opacity="0.08"/>
+  <circle cx="120" cy="820" r="180" fill="#0f172a" fill-opacity="0.12"/>
+
+  <!-- avatar -->
+  <g transform="translate(400 430)">
+    <circle r="240" fill="#ffffff" fill-opacity="0.12"/>
+    <circle r="200" fill="#ffffff" fill-opacity="0.16"/>
+    <g fill="#f8fafc" fill-opacity="0.92">
+      <circle cx="0" cy="-36" r="88"/>
+      <path d="M-144 190 C-144 56 -76 18 0 18 C76 18 144 56 144 190 Z"/>
+    </g>
+  </g>
+
+  <!-- label -->
+  <g transform="translate(400 860)" text-anchor="middle" font-family="Cairo, system-ui, sans-serif">
+    <rect x="-160" y="-34" width="320" height="68" rx="34" fill="#0f172a" fill-opacity="0.22" stroke="#ffffff" stroke-opacity="0.25"/>
+    <text y="8" fill="#ffffff" font-size="30" font-weight="700">Your photo here</text>
+  </g>
+</svg>
