@@ -68,7 +68,7 @@ secret**. Add each:
 | `SSH_USER`        | `u744145577`                                          | |
 | `SSH_PORT`        | `65002`                                               | Check hPanel; usually 65002. |
 | `DEPLOY_PATH`     | `/home/u744145577/domains/baraa.rakeez-llc.com/public_html` | The folder containing `artisan`. |
-| `PHP_BIN`         | `php8.3`                                               | Optional. Only if plain `php` isn't 8.3+ on the server. |
+| `PHP_BIN`         | `/opt/alt/php83/usr/bin/php`                           | Server CLI `php` is 8.2; the app needs 8.3. This CloudLinux path is PHP 8.3.31. |
 
 GitHub secrets are write-only — you can't read them back, only overwrite. That's
 expected.
@@ -102,8 +102,10 @@ your approval click.
   `ssh -p … -i …` command from step 2.
 - **`Host key verification failed`** — the runner couldn't `ssh-keyscan` the
   host; check `SSH_HOST`/`SSH_PORT`.
-- **`php: command not found` or wrong PHP version** — set the `PHP_BIN` secret to
-  `php8.3`. Confirm with `php8.3 -v` over SSH.
+- **`php: command not found` / `Composer dependencies require PHP >= 8.3` (the
+  CLI default is 8.2)** — set the `PHP_BIN` secret to the full 8.3 path
+  `/opt/alt/php83/usr/bin/php`. Find it with:
+  `for p in /opt/alt/php8*/usr/bin/php; do $p -v | head -1; done`
 - **`rsync: command not found` on the server** — rare on Hostinger. If it
   happens, switch the transfer to SFTP (ask and I'll adjust the workflow).
 - **500 after deploy** — almost always a stale cache or perms. Over SSH:

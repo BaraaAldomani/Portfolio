@@ -9,7 +9,8 @@
 #   SSH_USER         e.g. u744145577
 #   SSH_PORT         Hostinger shared hosting is usually 65002 (not 22)
 #   DEPLOY_PATH      e.g. /home/u744145577/public_html
-#   PHP_BIN          optional; defaults to "php", set to "php8.3" if needed
+#   PHP_BIN          server CLI php is 8.2; app needs 8.3. Set to the full path
+#                    /opt/alt/php83/usr/bin/php  (CloudLinux). Defaults to "php".
 # ─────────────────────────────────────────────────────────────────────────────
 name: Deploy to Hostinger
 
