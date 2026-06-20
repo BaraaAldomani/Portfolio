@@ -62,9 +62,14 @@ jobs:
           PHP_BIN: ${{ secrets.PHP_BIN || 'php' }}
         run: |
           mkdir -p ~/.ssh && chmod 700 ~/.ssh
-          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          # Strip any Windows CR characters that can mangle a pasted key.
+          printf '%s\n' "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -p "$SSH_PORT" "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          ssh-keyscan -p "$SSH_PORT" "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
+          # Quick auth probe so the log shows a clear reason if the key is rejected.
+          ssh -p "$SSH_PORT" -i ~/.ssh/deploy_key -o BatchMode=yes \
+            -o StrictHostKeyChecking=accept-new \
+            "$SSH_USER@$SSH_HOST" 'echo SSH_OK; whoami; pwd'
 
           # Sync the app. No --delete: server-side .env and uploaded images are safe.
           rsync -az --no-perms --no-owner --no-group \
