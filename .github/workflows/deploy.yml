@@ -87,17 +87,22 @@ jobs:
             -e "ssh -p $SSH_PORT -i ~/.ssh/deploy_key" \
             ./ "$SSH_USER@$SSH_HOST:$DEPLOY_PATH/"
 
-          # Migrate + publish Filament panel assets + rebuild caches on the server.
+          # Rebuild on the server. optimize:clear MUST run first: a stale config
+          # cache from a previous deploy would make Filament's providers boot
+          # against outdated config (symptoms: "heroicons set has no prefix", or
+          # "no commands in the filament namespace"). rsync runs without --delete
+          # and the runner never generates config.php, so an old one lingers until
+          # this clears it. Everything after boots against fresh, correct config.
           #
           # First deploy only (run once by hand over SSH, NOT in this pipeline, so
           # later deploys never overwrite content you edit in the dashboard):
           #   $PHP_BIN artisan db:seed --force        # initial content + settings
           #   $PHP_BIN artisan app:create-admin       # uses ADMIN_EMAIL / ADMIN_PASSWORD from .env
           ssh -p "$SSH_PORT" -i ~/.ssh/deploy_key "$SSH_USER@$SSH_HOST" "set -e; cd '$DEPLOY_PATH'; \
+            $PHP_BIN artisan optimize:clear; \
             $PHP_BIN artisan migrate --force; \
             $PHP_BIN artisan filament:assets; \
             $PHP_BIN artisan storage:link || true; \
-            $PHP_BIN artisan optimize:clear; \
             $PHP_BIN artisan config:cache; \
             $PHP_BIN artisan route:cache; \
             $PHP_BIN artisan view:cache"
