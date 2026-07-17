@@ -13,6 +13,14 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             ProjectSeeder::class,
+            ServiceSeeder::class,
+            ExperienceSeeder::class,
+            MetricSeeder::class,
+            FocusItemSeeder::class,
+            ProcessStepSeeder::class,
+            TechnologySeeder::class,
+            CapabilitySeeder::class,
+            SettingsSeeder::class,
         ]);
     }
 }

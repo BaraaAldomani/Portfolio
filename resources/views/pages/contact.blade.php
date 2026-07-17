@@ -1,29 +1,29 @@
 <x-layout :meta="$meta">
     <x-section>
         <header class="reveal max-w-2xl">
-            <p class="text-sm font-bold tracking-wide text-primary-700">{{ __('contact.eyebrow') }}</p>
-            <h1 data-reveal-text class="mt-2 text-3xl font-extrabold text-ink sm:text-4xl">{{ __('contact.title') }}</h1>
-            <p class="mt-4 text-lg leading-relaxed text-muted">{{ __('contact.lead') }}</p>
+            <p class="text-sm font-bold tracking-wide text-primary-700">{{ setting_text('contact.page_eyebrow', 'contact.eyebrow') }}</p>
+            <h1 data-reveal-text class="mt-2 text-3xl font-extrabold text-ink sm:text-4xl">{{ setting_text('contact.page_title', 'contact.title') }}</h1>
+            <p class="mt-4 text-lg leading-relaxed text-muted">{{ setting_text('contact.page_lead', 'contact.lead') }}</p>
         </header>
 
         <div class="mt-12 grid gap-10 lg:grid-cols-5">
             {{-- Direct channels --}}
             <div class="space-y-4 lg:col-span-2" data-stagger>
-                <a href="https://wa.me/{{ config('portfolio.whatsapp') }}" target="_blank" rel="noopener"
+                <a href="https://wa.me/{{ setting('contact.whatsapp', config('portfolio.whatsapp')) }}" target="_blank" rel="noopener"
                    class="reveal-start glow-border block rounded-2xl border border-line bg-surface p-6 transition-all duration-300 hover:-translate-y-1 hover:border-primary-200 hover:shadow-lg hover:shadow-primary-600/10">
-                    <p class="font-extrabold text-ink">{{ __('contact.whatsapp_title') }}</p>
-                    <p class="mt-1 text-sm text-muted">{{ __('contact.whatsapp_text') }}</p>
-                    <p class="mt-3 text-sm font-bold text-primary-700">{{ config('portfolio.phone_display') }}</p>
+                    <p class="font-extrabold text-ink">{{ setting_text('contact.whatsapp_title', 'contact.whatsapp_title') }}</p>
+                    <p class="mt-1 text-sm text-muted">{{ setting_text('contact.whatsapp_text', 'contact.whatsapp_text') }}</p>
+                    <p class="mt-3 text-sm font-bold text-primary-700">{{ setting('contact.phone_display', config('portfolio.phone_display')) }}</p>
                 </a>
 
-                <a href="mailto:{{ config('portfolio.email') }}"
+                <a href="mailto:{{ setting('contact.email', config('portfolio.email')) }}"
                    class="reveal-start glow-border block rounded-2xl border border-line bg-surface p-6 transition-all duration-300 hover:-translate-y-1 hover:border-primary-200 hover:shadow-lg hover:shadow-primary-600/10">
-                    <p class="font-extrabold text-ink">{{ __('contact.email_title') }}</p>
-                    <p class="mt-1 text-sm text-muted">{{ __('contact.email_text') }}</p>
-                    <p class="mt-3 break-all text-sm font-bold text-primary-700">{{ config('portfolio.email') }}</p>
+                    <p class="font-extrabold text-ink">{{ setting_text('contact.email_title', 'contact.email_title') }}</p>
+                    <p class="mt-1 text-sm text-muted">{{ setting_text('contact.email_text', 'contact.email_text') }}</p>
+                    <p class="mt-3 break-all text-sm font-bold text-primary-700">{{ setting('contact.email', config('portfolio.email')) }}</p>
                 </a>
 
-                <p class="reveal-start px-1 text-sm text-muted">{{ __('contact.response_note') }}</p>
+                <p class="reveal-start px-1 text-sm text-muted">{{ setting_text('contact.response_note', 'contact.response_note') }}</p>
             </div>
 
             {{-- Form --}}

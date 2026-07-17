@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasLocalizedContent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 final class Project extends Model
 {
+    use HasLocalizedContent;
+
     protected $guarded = [];
 
     protected function casts(): array
@@ -23,25 +26,12 @@ final class Project extends Model
         return $query->where('featured', true)->orderBy('sort_order');
     }
 
-    public function scopeOrdered(Builder $query): Builder
-    {
-        return $query->orderBy('sort_order');
-    }
-
-    /**
-     * Value of a bilingual column ("title", "summary", "sector", …) in the current locale.
-     */
-    public function localized(string $field): string
-    {
-        return $this->{$field . '_' . app()->getLocale()};
-    }
-
     /**
      * @return array<int, string>
      */
     public function highlights(): array
     {
-        return $this->{'highlights_' . app()->getLocale()} ?? [];
+        return $this->localizedArray('highlights');
     }
 
     public function slug(): string
@@ -58,7 +48,7 @@ final class Project extends Model
     {
         $path = $this->image_path ?: config('portfolio.images.projects_dir') . '/' . $this->slug_en . '.svg';
 
-        return asset($path);
+        return image_url($path);
     }
 
     /**

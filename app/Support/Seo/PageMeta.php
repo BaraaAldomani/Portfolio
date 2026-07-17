@@ -25,8 +25,8 @@ final readonly class PageMeta
         $alternates = self::alternatesFor(Route::currentRouteName(), []);
 
         return new self(
-            title: __("seo.{$page}.title"),
-            description: __("seo.{$page}.description"),
+            title: setting_text("seo.{$page}_title", "seo.{$page}.title"),
+            description: setting_text("seo.{$page}_description", "seo.{$page}.description"),
             alternates: $alternates,
             canonical: $alternates[app()->getLocale()],
         );

@@ -7,10 +7,10 @@
     'jobTitle' => 'Software Engineer',
     'description' => $meta->description,
     'url' => $meta->canonical,
-    'image' => asset(config('portfolio.images.portrait')),
-    'email' => 'mailto:' . config('portfolio.email'),
+    'image' => image_url(setting('images.portrait'), 'portfolio.images.portrait'),
+    'email' => 'mailto:' . setting('contact.email', config('portfolio.email')),
     'address' => ['@type' => 'PostalAddress', 'addressLocality' => 'Riyadh', 'addressCountry' => 'SA'],
-    'sameAs' => array_values(array_filter([config('portfolio.linkedin'), config('portfolio.gitlab')])),
+    'sameAs' => array_values(array_filter([setting('contact.linkedin', config('portfolio.linkedin')), setting('contact.gitlab', config('portfolio.gitlab'))])),
     'knowsAbout' => ['Software Engineering', 'Backend Development', 'Laravel', 'PHP', 'REST APIs', 'System Design', 'Scalable Web Applications', 'Databases'],
     'knowsLanguage' => ['Arabic', 'English'],
 ])
@@ -41,6 +41,10 @@
 
     <script>document.documentElement.classList.add('js')</script>
     @vite(['resources/css/app.css', 'resources/css/v3.css', 'resources/js/app.js', 'resources/js/v3.js'])
+
+    {{-- Dashboard-managed brand colours. These override the three base tokens in
+         tokens.css; every derived shade/surface/glow recomputes via color-mix(). --}}
+    <style>:root{--brand-primary:{{ setting('theme.primary', '#4f46e5') }};--brand-secondary:{{ setting('theme.secondary', '#0f172a') }};--brand-accent:{{ setting('theme.accent', '#14b8a6') }};}</style>
 
     <script type="application/ld+json">{!! json_encode($person, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}</script>
 </head>

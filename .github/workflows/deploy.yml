@@ -87,9 +87,15 @@ jobs:
             -e "ssh -p $SSH_PORT -i ~/.ssh/deploy_key" \
             ./ "$SSH_USER@$SSH_HOST:$DEPLOY_PATH/"
 
-          # Migrate + rebuild caches on the server.
+          # Migrate + publish Filament panel assets + rebuild caches on the server.
+          #
+          # First deploy only (run once by hand over SSH, NOT in this pipeline, so
+          # later deploys never overwrite content you edit in the dashboard):
+          #   $PHP_BIN artisan db:seed --force        # initial content + settings
+          #   $PHP_BIN artisan app:create-admin       # uses ADMIN_EMAIL / ADMIN_PASSWORD from .env
           ssh -p "$SSH_PORT" -i ~/.ssh/deploy_key "$SSH_USER@$SSH_HOST" "set -e; cd '$DEPLOY_PATH'; \
             $PHP_BIN artisan migrate --force; \
+            $PHP_BIN artisan filament:assets; \
             $PHP_BIN artisan storage:link || true; \
             $PHP_BIN artisan optimize:clear; \
             $PHP_BIN artisan config:cache; \

@@ -95,6 +95,45 @@ your approval click.
 
 ---
 
+## Admin dashboard (Filament) — first deploy only
+
+Every deploy already runs `migrate`, `filament:assets`, `storage:link` and the
+cache rebuilds. Two extra steps are needed **once**, on the first deploy after
+the dashboard was added. They are deliberately *not* in the pipeline: re-running
+the seeder on every deploy would overwrite content you edit in the dashboard.
+
+Over SSH, from `$DEPLOY_PATH` (use the 8.3 binary, e.g. `/opt/alt/php83/usr/bin/php`):
+
+```bash
+# 1. Load the initial content + settings (services, work history, metrics,
+#    SEO text, theme colours…). Run this ONCE.
+/opt/alt/php83/usr/bin/php artisan db:seed --force
+
+# 2. Create your admin login. Reads ADMIN_EMAIL / ADMIN_PASSWORD from .env,
+#    or pass them inline. Safe to re-run (updates the same user).
+/opt/alt/php83/usr/bin/php artisan app:create-admin --email=you@example.com --password='a-strong-password'
+```
+
+Then sign in at `https://your-domain/admin`.
+
+Add these to the server `.env` if you prefer the env-driven form of step 2:
+
+```dotenv
+ADMIN_EMAIL=you@example.com
+ADMIN_PASSWORD=a-strong-password
+ADMIN_NAME=Baraa
+```
+
+Notes:
+- Uploaded images live in `storage/app/public/images/...` and are served through
+  the `public/storage` symlink. rsync runs without `--delete`, so uploads survive
+  deploys.
+- Only users with `is_admin = true` can open `/admin`; `app:create-admin` sets it.
+- Migrations were verified against MySQL 8 (the `settings` table uses the
+  reserved words `group`/`key`; Laravel quotes them, so it is fine).
+
+---
+
 ## Troubleshooting
 
 - **`Permission denied (publickey)`** — public key isn't imported on Hostinger,

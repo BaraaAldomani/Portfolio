@@ -42,10 +42,10 @@
     {{-- CTA --}}
     <x-section bg="dark" width="narrow" class="js-spotlight">
         <div class="text-center">
-            <h2 class="reveal gradient-text text-2xl font-extrabold sm:text-3xl">{{ __('home.cta.title') }}</h2>
-            <p class="reveal mt-3 text-muted-on-dark">{{ __('home.cta.lead') }}</p>
+            <h2 class="reveal gradient-text text-2xl font-extrabold sm:text-3xl">{{ setting_text('home.detailcta_title', 'home.cta.title') }}</h2>
+            <p class="reveal mt-3 text-muted-on-dark">{{ setting_text('home.detailcta_lead', 'home.cta.lead') }}</p>
             <div class="reveal mt-7 flex justify-center">
-                <x-cta-button :href="route('contact')">{{ __('home.cta.button') }}</x-cta-button>
+                <x-cta-button :href="route('contact')">{{ setting_text('home.detailcta_button', 'home.cta.button') }}</x-cta-button>
             </div>
         </div>
     </x-section>
