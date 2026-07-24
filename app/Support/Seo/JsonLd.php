@@ -67,7 +67,10 @@ final class JsonLd
         return [
             '@type' => 'WebSite',
             '@id' => url('/') . '#website',
-            'name' => __('seo.site.name'),
+            // Concise brand — this is what Google shows as the site name.
+            // The longer descriptive form stays in alternateName.
+            'name' => __('common.brand'),
+            'alternateName' => __('seo.site.name'),
             'url' => url('/'),
             'inLanguage' => ['ar', 'en'],
             'publisher' => ['@id' => url('/') . '#person'],
