@@ -32,4 +32,13 @@ return [
         'title' => 'Blog, Software Engineering Articles | Baraa Aldomani',
         'description' => 'Practical articles on building systems, web & mobile apps, and best practices, from a freelance software engineer in Riyadh.',
     ],
+
+    // Answer-shaped Q&A used to build FAQ structured data (schema.org FAQPage).
+    'faq' => [
+        ['q' => 'Who is Baraa Aldomani?', 'a' => 'Baraa Aldomani is a freelance software engineer based in Riyadh, Saudi Arabia, with 4+ years of experience building web and mobile apps, custom management systems, websites, and API integrations for clients across Saudi Arabia.'],
+        ['q' => 'How can I hire a freelance software engineer in Riyadh?', 'a' => 'You can hire Baraa Aldomani directly through the contact page or WhatsApp. He works with businesses and clients on focused projects, from shaping the idea to launch and ongoing support.'],
+        ['q' => 'What services does Baraa Aldomani offer?', 'a' => 'Custom management systems, web and mobile applications, professional bilingual (Arabic/English) websites, and APIs and integrations with payment gateways and third-party systems.'],
+        ['q' => 'What technologies does Baraa work with?', 'a' => 'Primarily Laravel and PHP for backend and high-load systems, alongside REST APIs, databases, and modern web front-ends. He focuses on clean, maintainable, scalable software.'],
+        ['q' => 'Does Baraa work with clients outside Riyadh?', 'a' => 'Yes. He is based in Riyadh and serves clients across Saudi Arabia and remotely.'],
+    ],
 ];

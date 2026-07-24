@@ -15,6 +15,13 @@ return [
     'linkedin' => 'https://www.linkedin.com/in/baraa-aldomani/',
     'gitlab' => 'https://gitlab.com/BaraaAldomani',
 
+    // Extra profiles — fill in from the dashboard (Contact & social). Left blank
+    // here so the identity graph (JSON-LD sameAs) only lists links that exist.
+    'github' => '',
+    'twitter' => '',
+    'stackoverflow' => '',
+    'youtube' => '',
+
     // Public path (under public/) to the downloadable CV.
     'cv_path' => 'cv/baraa-aldomani-cv.pdf',
 

@@ -31,6 +31,10 @@ class ContactSettings extends SettingsPage
             'phone_display' => config('portfolio.phone_display'),
             'linkedin' => config('portfolio.linkedin'),
             'gitlab' => config('portfolio.gitlab'),
+            'github' => config('portfolio.github') ?: null,
+            'twitter' => config('portfolio.twitter') ?: null,
+            'stackoverflow' => config('portfolio.stackoverflow') ?: null,
+            'youtube' => config('portfolio.youtube') ?: null,
             'cv_path' => config('portfolio.cv_path'),
             'experience_years' => config('portfolio.experience_years'),
             'cta_title_ar' => trans('v3.cta.title', [], 'ar'),
@@ -76,6 +80,11 @@ class ContactSettings extends SettingsPage
                 ->schema([
                     TextInput::make('linkedin')->label('LinkedIn URL')->url(),
                     TextInput::make('gitlab')->label('GitLab URL')->url(),
+                    TextInput::make('github')->label('GitHub URL')->url()
+                        ->helperText('Boosts your identity graph for Google & AI assistants.'),
+                    TextInput::make('twitter')->label('X / Twitter URL')->url(),
+                    TextInput::make('stackoverflow')->label('Stack Overflow URL')->url(),
+                    TextInput::make('youtube')->label('YouTube URL')->url(),
                     TextInput::make('experience_years')
                         ->label('Years of experience')
                         ->numeric()
