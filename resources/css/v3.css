@@ -200,9 +200,15 @@ html[lang='ar'] a { word-spacing: 0.06em; }
 /* ── Glassmorphism ── frosted dark cards used across the site. */
 .glass {
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.025));
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.14);
+}
+/* Gated behind @supports so the CSS minifier cannot collapse the standard
+   property away (leaving only -webkit-, which Chromium no longer applies). */
+@supports ((backdrop-filter: blur(12px)) or (-webkit-backdrop-filter: blur(12px))) {
+    .glass {
+        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(12px);
+    }
 }
 .glass-hover {
     transition: transform 0.35s var(--v3-ease-out), border-color 0.35s ease, box-shadow 0.35s ease;
@@ -283,10 +289,14 @@ html[lang='ar'] a { word-spacing: 0.06em; }
 /* ── Project card: glass + lift + glow on hover (Framer "y:-10" equivalent) ── */
 .v3-proj {
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.12);
     transition: transform 0.4s var(--v3-ease-out), border-color 0.4s ease, box-shadow 0.4s ease;
+}
+@supports ((backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px))) {
+    .v3-proj {
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+    }
 }
 @media (hover: hover) and (pointer: fine) {
     .v3-proj:hover {

@@ -21,6 +21,12 @@ export default defineConfig({
         }),
         tailwindcss(),
     ],
+    build: {
+        // Include Firefox (which has no -webkit-backdrop-filter) so the CSS
+        // pipeline must emit the standard backdrop-filter, and Safari 15 so it
+        // still emits the -webkit- prefix. Keeps both in the built bundle.
+        cssTarget: ['chrome111', 'firefox121', 'safari15', 'edge111'],
+    },
     server: {
         host: '0.0.0.0',
         port: 5173,
