@@ -14,7 +14,7 @@
                 <h1 data-load-item class="mt-3 text-4xl font-extrabold leading-[1.08] tracking-tight text-ink sm:text-5xl lg:text-6xl">{{ setting_text('home.hero_title', 'v3.hero.title') }}</h1>
                 <p data-load-item class="mt-6 max-w-xl text-lg leading-relaxed text-muted">{{ setting_text('home.hero_lead', 'v3.hero.lead') }}</p>
                 <div data-load-item class="mt-8 flex flex-wrap items-center gap-3">
-                    <a href="{{ route('contact') }}" class="js-magnetic btn-press glow-cyan inline-flex items-center justify-center rounded-full bg-primary px-7 py-3.5 text-sm font-bold text-[#08121b] transition-shadow hover:bg-primary-400">{{ setting_text('home.hero_primary', 'v3.hero.primary') }}</a>
+                    <a href="{{ route('contact') }}" data-track="cta_contact" data-track-from="hero" class="js-magnetic btn-press glow-cyan inline-flex items-center justify-center rounded-full bg-primary px-7 py-3.5 text-sm font-bold text-[#08121b] transition-shadow hover:bg-primary-400">{{ setting_text('home.hero_primary', 'v3.hero.primary') }}</a>
                     <a href="{{ route('projects.index') }}" class="btn-press group inline-flex items-center gap-2 rounded-full border border-line bg-surface px-7 py-3.5 text-sm font-bold text-ink transition-colors hover:border-primary-300 hover:text-primary-700">
                         {{ setting_text('home.hero_secondary', 'v3.hero.secondary') }}
                         <svg class="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1 rtl:-scale-x-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
@@ -30,7 +30,7 @@
                     </div>
                     @php($heroMetric = $site->metrics('home')->first())
                     <div class="glass absolute -bottom-5 rounded-2xl p-4 shadow-lg ltr:-start-5 rtl:-end-5">
-                        <p class="text-2xl font-extrabold text-primary-700"><span data-counter="{{ $heroMetric?->value ?? 4 }}">0</span><span aria-hidden="true">{{ $heroMetric?->suffix ?? '+' }}</span></p>
+                        <p class="text-2xl font-extrabold text-primary-700"><span data-counter="{{ $heroMetric?->value ?? 4 }}">{{ $heroMetric?->value ?? 4 }}</span><span aria-hidden="true">{{ $heroMetric?->suffix ?? '+' }}</span></p>
                         <p class="mt-0.5 text-xs font-semibold leading-snug text-muted">{{ $heroMetric?->localized('label') ?? __('v3.metrics.0.label') }}</p>
                     </div>
                 </div>
@@ -48,7 +48,7 @@
             <dl class="mt-12 grid grid-cols-2 gap-5 sm:grid-cols-3" data-stagger>
                 @foreach ($site->metrics('home') as $m)
                     <div class="reveal glass glass-hover rounded-2xl p-6 text-center">
-                        <dt class="text-4xl font-extrabold text-primary-700 sm:text-5xl"><span data-counter="{{ $m->value }}">0</span><span aria-hidden="true">{{ $m->suffix }}</span></dt>
+                        <dt class="text-4xl font-extrabold text-primary-700 sm:text-5xl"><span data-counter="{{ $m->value }}">{{ $m->value }}</span><span aria-hidden="true">{{ $m->suffix }}</span></dt>
                         <dd class="mt-1 text-sm font-semibold text-muted">{{ $m->localized('label') }}</dd>
                     </div>
                 @endforeach

@@ -234,28 +234,48 @@ html[lang='ar'] a { word-spacing: 0.06em; }
 .sec-muted { background-color: rgba(255, 255, 255, 0.025); }
 .sec-dark { background-color: rgba(2, 6, 23, 0.55); }
 
-/* ── Rakeez logo (About → Founder) ── no panel; brightened so the dark navy
-   marks stay visible on the space background, with a teal/cyan glow on hover. ── */
-.rakeez-logo {
-    width: auto;
-    height: 28rem; /* 2x the previous size; set here so it never depends on JIT */
-    filter: brightness(1.7) saturate(1.1)
-        drop-shadow(0 0 16px rgba(93, 235, 215, 0.45))
-        drop-shadow(0 0 38px rgba(36, 171, 227, 0.3));
-    transition: transform 0.5s var(--v3-ease-out), filter 0.5s ease;
+/* ── Floating WhatsApp button ── icon-only on touch screens, expands to show
+   its label on hover/focus with a fine pointer. Sits above the safe area. ── */
+.wa-fab {
+    position: fixed;
+    z-index: 45;
+    inset-block-end: max(1.25rem, env(safe-area-inset-bottom));
+    inset-inline-end: 1.25rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    min-height: 3.25rem;
+    padding: 0.85rem;
+    border-radius: 999px;
+    background: var(--brand-whatsapp);
+    color: var(--brand-on-whatsapp);
+    font-size: 0.875rem;
+    font-weight: 700;
+    box-shadow: 0 10px 30px -8px color-mix(in oklab, var(--brand-whatsapp) 60%, transparent), 0 2px 8px rgba(0, 0, 0, 0.35);
+    transition: transform 0.25s var(--v3-ease-out), box-shadow 0.25s ease, gap 0.3s var(--v3-ease-out);
 }
-@media (min-width: 640px) {
-    .rakeez-logo { height: 32rem; }
+.wa-fab__label {
+    max-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    transition: max-width 0.35s var(--v3-ease-out);
 }
+.wa-fab:active { transform: scale(0.95); }
+.wa-fab:focus-visible {
+    outline: 2px solid var(--brand-text);
+    outline-offset: 3px;
+}
+.wa-fab:focus-visible .wa-fab__label { max-width: 16rem; }
+.wa-fab:focus-visible { gap: 0.55rem; padding-inline-end: 1.1rem; }
 @media (hover: hover) and (pointer: fine) {
-    .group:hover .rakeez-logo,
-    .rakeez-logo:hover {
-        transform: scale(1.06);
-        filter: brightness(1.8) saturate(1.15)
-            drop-shadow(0 0 26px rgba(93, 235, 215, 0.7))
-            drop-shadow(0 0 60px rgba(36, 171, 227, 0.5));
+    .wa-fab:hover {
+        gap: 0.55rem;
+        padding-inline-end: 1.1rem;
+        transform: translateY(-2px);
     }
+    .wa-fab:hover .wa-fab__label { max-width: 16rem; }
 }
+@media print { .wa-fab { display: none; } }
 
 /* ── Pulsing neon frame around the hero portrait ── */
 .v3-frame { position: relative; }
@@ -344,6 +364,6 @@ html[lang='en'] .v3-photo-flip { transform: scaleX(-1); }
         transition: none;
     }
     #cursor-glow { display: none; }
-    .v3-lift, .v3-press, .v3-node, .v3-row, .v3-row__bar, .v3-photo, .v3-proj, .glass-hover { transition: none; }
+    .v3-lift, .v3-press, .v3-node, .v3-row, .v3-row__bar, .v3-photo, .v3-proj, .glass-hover, .wa-fab, .wa-fab__label { transition: none; }
     .v3-frame::before { animation: none; }
 }

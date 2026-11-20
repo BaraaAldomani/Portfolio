@@ -6,10 +6,10 @@ use App\Filament\Pages\AboutSettings;
 use App\Filament\Pages\ContactSettings;
 use App\Filament\Pages\HeroSettings;
 use App\Filament\Pages\ImageSettings;
-use App\Filament\Pages\RakeezSettings;
 use App\Filament\Pages\SeoSettings;
 use App\Filament\Pages\ServicesPageSettings;
 use App\Filament\Pages\ThemeSettings;
+use App\Filament\Pages\TrackingSettings;
 use App\Models\Setting;
 use Illuminate\Database\Seeder;
 
@@ -23,11 +23,11 @@ class SettingsSeeder extends Seeder
         ThemeSettings::class,
         HeroSettings::class,
         AboutSettings::class,
-        RakeezSettings::class,
         ServicesPageSettings::class,
         ContactSettings::class,
         SeoSettings::class,
         ImageSettings::class,
+        TrackingSettings::class,
     ];
 
     public function run(): void

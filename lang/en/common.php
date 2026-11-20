@@ -20,6 +20,7 @@ return [
     'download_cv' => 'Download CV',
     'whatsapp' => 'WhatsApp',
     'whatsapp_message' => 'Message me on WhatsApp',
+    'whatsapp_prefill' => "Hi Baraa, I have a project I'd like to discuss with you.",
     'email_me' => 'Email me',
     'available' => 'Available for new projects',
     'linkedin' => 'LinkedIn',

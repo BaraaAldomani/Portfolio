@@ -8,6 +8,11 @@
 return [
     'email' => 'baraa.aldomani@gmail.com',
 
+    // Inbox that receives an alert for every contact-form message. Leave
+    // empty to skip email alerts (Telegram alerts are configured in
+    // config/services.php). Needs a working MAIL_* setup in .env.
+    'lead_notify_email' => env('LEAD_NOTIFY_EMAIL'),
+
     // Digits only, international format — used to build the wa.me link.
     'whatsapp' => '966553785576',
     'phone_display' => '+966 55 378 5576',
@@ -47,7 +52,6 @@ return [
 
         // v3 — brand logo + real photos to drop in later.
         'logo' => 'images/logo.svg',
-        'rakeez_logo' => 'images/rakeez-logo.svg',
         'portrait' => 'images/baraa-portrait.png',
         'workspace' => 'images/workspace.svg',
     ],

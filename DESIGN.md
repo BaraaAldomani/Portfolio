@@ -21,7 +21,6 @@ A complete design + motion specification for the site, written so another design
 
 - **Logo:** a custom "B" mark made of octagon/hexagon + circular nodes (a UML/graph motif). Files: `public/images/logo.svg` (and `logo.png` for the favicon).
 - **Primary brand color:** **`#24abe3`** — a clear cyan-blue taken directly from the logo. This is THE brand color; everything keys off it.
-- **Secondary brand context (Rakeez founder section only):** Rakeez palette `#074173` / `#1679AB` / `#5DEBD7`, shown on a white card.
 - **Personality:** technical blueprint / architecture diagram. The signature motif (see §10) is a faint UML + Git-graph network drawn behind the whole page.
 
 ---
@@ -114,7 +113,6 @@ The bespoke Home/About sections use the same scale directly (`max-w-6xl/7xl`, `p
 - **Project card** (`components/project-card.blade.php`): `.js-tilt .glow-border`, a 16:10 **cover image (DB-driven `Project::coverImage()`)**, hover gradient wash + circular arrow that slides up, then sector eyebrow, title, summary, highlight chips, "Case study" link.
 - **Experience timeline** ("Where I have worked"): a vertical `border-s-2` line with `.v3-node` dots that **scale 1.25 + fill cyan on row hover**; role · org (org is a link), period in mono, blurb.
 - **Focus rows** ("What I do best"): `.v3-row` list rows; on hover the row gets a faint cyan bg and a vertical `.v3-row__bar` scales in.
-- **Rakeez founder block** (About): the one place using a **white card** with the Rakeez logo + secondary palette, badge "Founder".
 - **Stats / metrics:** big number + `[data-counter]` count-up + small label (e.g., "4+ Years building software").
 - **Terminal** (`.js-terminal`): a looping typewriter "CLI" component (available; used selectively).
 - **Forms (Contact):** labeled inputs on dark, honeypot field, server validation states, success flash. The form **stores messages to the database** (no email is sent).
@@ -124,7 +122,7 @@ The bespoke Home/About sections use the same scale directly (`max-w-6xl/7xl`, `p
 ## 9. Page layouts (structure)
 
 - **Home:** Hero (2-col: copy + grayscale **portrait** with floating "4+ years" badge) → "Engineering that holds up under real load" proof + metrics → "What I do best" focus list → "Real projects, measurable results" project grid.
-- **About:** Intro (copy + photo) → **Where I have worked** timeline → **Rakeez (Founder)** highlight → Capabilities + Education.
+- **About:** Intro (copy + photo) → **Where I have worked** timeline → Capabilities + Education.
 - **Services:** hero → alternating service feature rows → impact stats band → process timeline (`.js-draw`) → tech-stack marquee (`.js-marquee`) → CTA.
 - **Projects:** hero → staggered grid of project cards.
 - **Project detail:** back link → header (sector, title, summary, highlight chips) → cover banner → numbered **Problem / Solution / Result** → CTA.
@@ -220,4 +218,4 @@ One shared engine in `resources/js/animations.js` (`initAnimations()`), plus v3-
 - Shell: `resources/views/components/{layout,site-nav,site-footer,section,project-card,…}.blade.php`.
 - Pages: `resources/views/pages/{home,about,services,projects,project-show,contact}.blade.php`.
 - Copy: `lang/{en,ar}/*.php` (keep parity).
-- Brand assets: `public/images/{logo.svg,logo.png,rakeez-logo.svg, baraa-portrait.png, baraa-about.jpg, projects/*.svg}`.
+- Brand assets: `public/images/{logo.svg,logo.png,baraa-portrait.png, baraa-about.jpg, projects/*.svg}`.

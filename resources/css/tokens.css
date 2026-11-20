@@ -81,6 +81,11 @@
     --brand-aurora-2: color-mix(in oklab, var(--brand-accent) 55%, transparent);
     --brand-aurora-3: color-mix(in oklab, var(--brand-primary-400) 45%, transparent);
 
+    /* WhatsApp green, used only for the WhatsApp contact button so it is
+       recognised at a glance. Carries dark ink (white on it fails contrast). */
+    --brand-whatsapp:    #25d366;
+    --brand-on-whatsapp: #052e16;
+
     /* ── Status (forms, alerts) ── */
     --brand-danger:       #dc2626;
     --brand-danger-soft:  color-mix(in oklab, var(--brand-danger) 10%, var(--brand-white));

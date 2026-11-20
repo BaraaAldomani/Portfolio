@@ -30,7 +30,7 @@
         <div class="flex items-center gap-2.5">
             <a href="{{ $alternates[$otherLocale] }}" hreflang="{{ $otherLocale }}" class="hidden text-sm font-bold text-muted hover:text-primary-700 sm:inline">{{ __('nav.switch_language') }}</a>
 
-            <a href="{{ route('contact') }}" class="btn-press glow-cyan hidden items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-bold text-[#08121b] transition-shadow hover:bg-primary-400 sm:inline-flex">
+            <a href="{{ route('contact') }}" data-track="cta_contact" data-track-from="nav" class="btn-press glow-cyan hidden items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-bold text-[#08121b] transition-shadow hover:bg-primary-400 sm:inline-flex">
                 {{ setting_text('contact.cta_primary', 'v3.cta.primary') }}
             </a>
 
@@ -48,7 +48,7 @@
                     <a href="{{ route($link['route']) }}" class="block rounded-lg px-3 py-2 text-sm font-semibold {{ request()->routeIs($link['active']) ? 'bg-primary-50 text-primary-700' : 'text-muted hover:bg-surface-muted hover:text-ink' }}">{{ $link['label'] }}</a>
                 </li>
             @endforeach
-            <li class="pt-2"><a href="{{ route('contact') }}" class="block rounded-lg bg-primary px-3 py-2.5 text-center text-sm font-bold text-white">{{ setting_text('contact.cta_primary', 'v3.cta.primary') }}</a></li>
+            <li class="pt-2"><a href="{{ route('contact') }}" data-track="cta_contact" data-track-from="nav" class="block rounded-lg bg-primary px-3 py-2.5 text-center text-sm font-bold text-white">{{ setting_text('contact.cta_primary', 'v3.cta.primary') }}</a></li>
             <li class="px-3 pt-3 text-xs font-bold">
                 <a href="{{ $alternates[$otherLocale] }}" class="text-muted">{{ __('nav.switch_language') }}</a>
             </li>

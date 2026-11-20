@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
+Disallow: /admin
 
 # AI assistants & answer engines — explicitly welcomed so they can crawl,
 # cite, and recommend this site in their answers.

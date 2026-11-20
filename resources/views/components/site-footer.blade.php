@@ -1,8 +1,8 @@
 @php($footerEmail = setting('contact.email', config('portfolio.email')))
 @php($channels = [
-    ['label' => __('common.whatsapp'), 'href' => 'https://wa.me/' . setting('contact.whatsapp', config('portfolio.whatsapp'))],
-    ['label' => __('common.linkedin'), 'href' => setting('contact.linkedin', config('portfolio.linkedin'))],
-    ['label' => __('common.gitlab'), 'href' => setting('contact.gitlab', config('portfolio.gitlab'))],
+    ['label' => __('common.whatsapp'), 'href' => whatsapp_url(), 'track' => 'whatsapp'],
+    ['label' => __('common.linkedin'), 'href' => setting('contact.linkedin', config('portfolio.linkedin')), 'track' => 'linkedin'],
+    ['label' => __('common.gitlab'), 'href' => setting('contact.gitlab', config('portfolio.gitlab')), 'track' => 'gitlab'],
 ])
 @php($footerNav = [
     ['services', __('nav.services')],
@@ -20,8 +20,8 @@
                 <p class="mt-4 max-w-lg text-lg leading-relaxed text-muted">{{ setting_text('contact.cta_lead', 'v3.cta.lead') }}</p>
             </div>
             <div class="flex flex-wrap gap-3 lg:justify-end">
-                <a href="{{ route('contact') }}" class="js-magnetic btn-press inline-flex items-center justify-center rounded-full bg-primary px-7 py-3.5 text-sm font-bold text-[#08121b] shadow-lg shadow-primary-600/25 transition-colors hover:bg-primary-400">{{ setting_text('contact.cta_primary', 'v3.cta.primary') }}</a>
-                <a href="mailto:{{ $footerEmail }}" class="btn-press inline-flex items-center justify-center rounded-full border border-line bg-surface px-7 py-3.5 text-sm font-bold text-ink hover:border-primary-300 hover:text-primary-700">{{ __('common.email_me') }}</a>
+                <a href="{{ route('contact') }}" data-track="cta_contact" data-track-from="footer" class="js-magnetic btn-press inline-flex items-center justify-center rounded-full bg-primary px-7 py-3.5 text-sm font-bold text-[#08121b] shadow-lg shadow-primary-600/25 transition-colors hover:bg-primary-400">{{ setting_text('contact.cta_primary', 'v3.cta.primary') }}</a>
+                <a href="mailto:{{ $footerEmail }}" data-track="email" data-track-from="footer" class="btn-press inline-flex items-center justify-center rounded-full border border-line bg-surface px-7 py-3.5 text-sm font-bold text-ink hover:border-primary-300 hover:text-primary-700">{{ __('common.email_me') }}</a>
             </div>
         </div>
     </section>
@@ -47,9 +47,9 @@
         <div class="text-sm">
             <ul class="space-y-2.5">
                 @foreach ($channels as $c)
-                    <li><a href="{{ $c['href'] }}" target="_blank" rel="noopener" class="font-semibold text-muted hover:text-primary-700">{{ $c['label'] }}</a></li>
+                    <li><a href="{{ $c['href'] }}" target="_blank" rel="noopener" data-track="{{ $c['track'] }}" data-track-from="footer" class="font-semibold text-muted hover:text-primary-700">{{ $c['label'] }}</a></li>
                 @endforeach
-                <li><a href="mailto:{{ $footerEmail }}" class="break-all font-semibold text-primary-700 hover:text-primary-800">{{ $footerEmail }}</a></li>
+                <li><a href="mailto:{{ $footerEmail }}" data-track="email" data-track-from="footer" class="break-all font-semibold text-primary-700 hover:text-primary-800">{{ $footerEmail }}</a></li>
             </ul>
         </div>
     </div>

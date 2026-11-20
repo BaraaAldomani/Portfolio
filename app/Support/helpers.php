@@ -74,3 +74,17 @@ if (! function_exists('image_url')) {
         return asset($path);
     }
 }
+
+if (! function_exists('whatsapp_url')) {
+    /**
+     * wa.me deep link to the owner's WhatsApp, pre-filled with a short
+     * localized greeting so the visitor only has to press send.
+     */
+    function whatsapp_url(?string $text = null): string
+    {
+        $number = preg_replace('/\D+/', '', (string) setting('contact.whatsapp', config('portfolio.whatsapp')));
+        $text ??= __('common.whatsapp_prefill');
+
+        return 'https://wa.me/' . $number . ($text !== '' ? '?text=' . rawurlencode($text) : '');
+    }
+}

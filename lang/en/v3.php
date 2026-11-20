@@ -38,27 +38,10 @@ return [
         'primary' => "Let's talk",
     ],
 
-    'rakeez' => [
-        'eyebrow' => 'Founder',
-        'title' => 'Rakeez',
-        'title_ar' => 'ركـيــز',
-        'lead' => 'I founded Rakeez, a software studio that designs and ships reliable systems for businesses: from the first idea to a product in production.',
-        'points' => ['Engineering-led delivery', 'Backend, web & integrations', 'Built to last and to scale'],
-        'cta' => 'Visit Rakeez',
-        'url' => 'https://rakeez-llc.com/',
-    ],
-
     'work' => [
         'title' => 'Where I have worked',
-        'lead' => 'From hands-on engineering in product teams to founding and leading my own studio.',
+        'lead' => 'From systems analysis to leading backend teams and building national-scale systems.',
         'items' => [
-            [
-                'role' => 'Founder',
-                'org' => 'Rakeez',
-                'period' => '2024 - Now',
-                'url' => 'https://rakeez-llc.com/',
-                'blurb' => 'Founded and lead a software studio that delivers engineering and products for clients across sectors.',
-            ],
             [
                 'role' => 'Software Engineer, high-load systems',
                 'org' => 'National Housing Company (NHC)',

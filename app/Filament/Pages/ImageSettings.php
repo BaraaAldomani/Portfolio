@@ -34,7 +34,6 @@ class ImageSettings extends SettingsPage
             'service_websites' => null,
             'service_apis' => null,
             'logo' => null,
-            'rakeez_logo' => null,
         ];
     }
 
@@ -59,7 +58,6 @@ class ImageSettings extends SettingsPage
                 ->columns(2)
                 ->schema([
                     $this->upload('logo', 'Logo'),
-                    $this->upload('rakeez_logo', 'Rakeez logo'),
                 ]),
         ];
     }

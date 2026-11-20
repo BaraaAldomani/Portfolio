@@ -27,6 +27,8 @@
     <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
     <link href="https://fonts.bunny.net/css?family=hanken-grotesk:400,500,600,700,800|jetbrains-mono:400,500|cairo:400,600,700&display=swap" rel="stylesheet">
 
+    <x-tracking-head />
+
     <script>document.documentElement.classList.add('js')</script>
     @vite(['resources/css/app.css', 'resources/css/v3.css', 'resources/js/app.js', 'resources/js/v3.js'])
 
@@ -54,5 +56,11 @@
     </main>
 
     <x-site-footer />
+
+    {{-- Floating WhatsApp: the first-choice channel for clients in KSA. --}}
+    <a href="{{ whatsapp_url() }}" target="_blank" rel="noopener" class="wa-fab" data-track="whatsapp" data-track-from="floating" aria-label="{{ __('common.whatsapp_message') }}">
+        <x-icon.whatsapp class="h-6 w-6 shrink-0" />
+        <span class="wa-fab__label">{{ __('common.whatsapp_message') }}</span>
+    </a>
 </body>
 </html>

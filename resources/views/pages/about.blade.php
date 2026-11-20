@@ -56,36 +56,6 @@
         </div>
     </section>
 
-    {{-- ───────────── RAKEEZ (FOUNDER) ───────────── --}}
-    @php($rakeezUrl = setting('rakeez.url', __('v3.rakeez.url')))
-    <section class="border-y border-line">
-        <div class="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-24">
-            <div class="grid items-center gap-10 lg:grid-cols-2">
-                <div class="reveal-start">
-                    <p class="inline-flex items-center gap-1.5 rounded-full border border-primary-200 bg-primary-50 px-3 py-1 text-xs font-bold text-primary-700">{{ setting_text('rakeez.eyebrow', 'v3.rakeez.eyebrow') }}</p>
-                    <h2 class="mt-4 text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">{{ setting('rakeez.brand_en', __('v3.rakeez.title')) }} <span class="font-normal text-muted">|</span> {{ setting('rakeez.brand_ar', __('v3.rakeez.title_ar')) }}</h2>
-                    <p class="mt-4 text-lg leading-relaxed text-muted">{{ setting_text('rakeez.lead', 'v3.rakeez.lead') }}</p>
-                    <ul class="mt-6 space-y-2.5">
-                        @foreach (setting_list('rakeez.points', 'v3.rakeez.points') as $pt)
-                            <li class="flex items-center gap-3 font-semibold text-ink"><span class="text-primary">+</span>{{ $pt }}</li>
-                        @endforeach
-                    </ul>
-                    <a href="{{ $rakeezUrl }}" target="_blank" rel="noopener" class="js-magnetic btn-press mt-7 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-[#08121b] transition-colors hover:bg-primary-400">
-                        {{ setting_text('rakeez.cta', 'v3.rakeez.cta') }}
-                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>
-                    </a>
-                </div>
-                <div class="reveal flex items-center justify-center">
-                    <a href="{{ $rakeezUrl }}" target="_blank" rel="noopener"
-                       class="group inline-flex" aria-label="{{ setting('rakeez.brand_en', __('v3.rakeez.title')) }} — {{ setting_text('rakeez.cta', 'v3.rakeez.cta') }}">
-                        <img src="{{ image_url(setting('images.rakeez_logo'), 'portfolio.images.rakeez_logo') }}" alt="Rakeez"
-                             width="320" height="320" class="rakeez-logo">
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-
     {{-- ───────────── CAPABILITIES + EDUCATION ───────────── --}}
     <section class="border-t border-line">
         <div class="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-24">

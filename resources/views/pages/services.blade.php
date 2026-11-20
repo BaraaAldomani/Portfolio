@@ -100,7 +100,7 @@
             @foreach ($site->metrics('services') as $stat)
                 <div class="reveal rounded-2xl border border-line-on-dark bg-surface-dark-soft p-6 text-center">
                     <dd class="gradient-text text-4xl font-extrabold sm:text-5xl">
-                        <span data-counter="{{ $stat->value }}">0</span><span aria-hidden="true">{{ $stat->suffix }}</span>
+                        <span data-counter="{{ $stat->value }}">{{ $stat->value }}</span><span aria-hidden="true">{{ $stat->suffix }}</span>
                     </dd>
                     <dt class="mt-2 text-xs font-semibold text-muted-on-dark sm:text-sm">{{ $stat->localized('label') }}</dt>
                 </div>

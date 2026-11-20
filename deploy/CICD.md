@@ -69,6 +69,13 @@ secret**. Add each:
 | `SSH_PORT`        | `65002`                                               | Check hPanel; usually 65002. |
 | `DEPLOY_PATH`     | `/home/u744145577/domains/baraa.rakeez-llc.com/public_html` | The folder containing `artisan`. |
 | `PHP_BIN`         | `/opt/alt/php83/usr/bin/php`                           | Server CLI `php` is 8.2; the app needs 8.3. This CloudLinux path is PHP 8.3.31. |
+| `TELEGRAM_BOT_TOKEN` | `123456:ABC...`                                    | Optional. Contact-form alerts; from @BotFather. |
+| `TELEGRAM_CHAT_ID`   | `123456789`                                        | Optional. Your chat id with the bot. |
+| `LEAD_NOTIFY_EMAIL`  | `you@example.com`                                  | Optional. Email alerts (needs `MAIL_*` set on the server). |
+
+The three optional ones are written into the server `.env` on every deploy by
+`scripts/set-env.php` (empty secrets are skipped). Check them with
+`php artisan leads:test` on the server.
 
 GitHub secrets are write-only — you can't read them back, only overwrite. That's
 expected.

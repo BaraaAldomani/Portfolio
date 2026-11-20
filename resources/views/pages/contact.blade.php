@@ -9,14 +9,14 @@
         <div class="mt-12 grid gap-10 lg:grid-cols-5">
             {{-- Direct channels --}}
             <div class="space-y-4 lg:col-span-2" data-stagger>
-                <a href="https://wa.me/{{ setting('contact.whatsapp', config('portfolio.whatsapp')) }}" target="_blank" rel="noopener"
+                <a href="{{ whatsapp_url() }}" target="_blank" rel="noopener" data-track="whatsapp" data-track-from="contact"
                    class="reveal-start glow-border block rounded-2xl border border-line bg-surface p-6 transition-all duration-300 hover:-translate-y-1 hover:border-primary-200 hover:shadow-lg hover:shadow-primary-600/10">
                     <p class="font-extrabold text-ink">{{ setting_text('contact.whatsapp_title', 'contact.whatsapp_title') }}</p>
                     <p class="mt-1 text-sm text-muted">{{ setting_text('contact.whatsapp_text', 'contact.whatsapp_text') }}</p>
-                    <p class="mt-3 text-sm font-bold text-primary-700">{{ setting('contact.phone_display', config('portfolio.phone_display')) }}</p>
+                    <p class="mt-3 text-sm font-bold text-primary-700"><bdi dir="ltr">{{ setting('contact.phone_display', config('portfolio.phone_display')) }}</bdi></p>
                 </a>
 
-                <a href="mailto:{{ setting('contact.email', config('portfolio.email')) }}"
+                <a href="mailto:{{ setting('contact.email', config('portfolio.email')) }}" data-track="email" data-track-from="contact"
                    class="reveal-start glow-border block rounded-2xl border border-line bg-surface p-6 transition-all duration-300 hover:-translate-y-1 hover:border-primary-200 hover:shadow-lg hover:shadow-primary-600/10">
                     <p class="font-extrabold text-ink">{{ setting_text('contact.email_title', 'contact.email_title') }}</p>
                     <p class="mt-1 text-sm text-muted">{{ setting_text('contact.email_text', 'contact.email_text') }}</p>
@@ -29,7 +29,7 @@
             {{-- Form --}}
             <div class="lg:col-span-3">
                 @if (session('contact_sent'))
-                    <div class="reveal mb-6 rounded-xl border border-success/30 bg-success-soft px-4 py-3 text-sm font-semibold text-success" role="status">
+                    <div class="reveal mb-6 rounded-xl border border-success/30 bg-success-soft px-4 py-3 text-sm font-semibold text-success" role="status" data-track-view="contact_form_submit">
                         {{ __('contact.form.success') }}
                     </div>
                 @endif

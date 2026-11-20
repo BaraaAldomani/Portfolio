@@ -165,6 +165,13 @@ function splitIntoWords(el) {
 /* ── Animated counters ─────────────────────────────────────── */
 
 function initCounters() {
+    // The real number ships in the HTML (for crawlers, no-JS and AI readers);
+    // only once JS is running do we zero it so it can count up into view.
+    const counters = document.querySelectorAll('[data-counter]');
+    counters.forEach((el) => {
+        el.textContent = formatNumber(0);
+    });
+
     const observer = new IntersectionObserver((entries, obs) => {
         entries.forEach((entry) => {
             if (!entry.isIntersecting) return;
@@ -172,7 +179,7 @@ function initCounters() {
             obs.unobserve(entry.target);
         });
     }, { threshold: 0.6 });
-    document.querySelectorAll('[data-counter]').forEach((el) => observer.observe(el));
+    counters.forEach((el) => observer.observe(el));
 }
 
 function animateCounter(el) {
@@ -189,8 +196,12 @@ function animateCounter(el) {
     requestAnimationFrame(tick);
 }
 
+// Western digits in both languages, matching the server-rendered value, so the
+// number never switches digit system when the animation finishes.
+const numberFormat = new Intl.NumberFormat(`${document.documentElement.lang}-u-nu-latn`);
+
 function formatNumber(value) {
-    return new Intl.NumberFormat(document.documentElement.lang).format(value);
+    return numberFormat.format(value);
 }
 
 /* ── Typewriter terminal ───────────────────────────────────── */

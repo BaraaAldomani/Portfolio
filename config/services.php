@@ -35,4 +35,12 @@ return [
         ],
     ],
 
+    // New-lead alerts from the contact form (see App\Support\LeadNotifier).
+    // Create a bot with @BotFather, message it once, then read your chat id
+    // from https://api.telegram.org/bot<token>/getUpdates.
+    'telegram' => [
+        'bot_token' => env('TELEGRAM_BOT_TOKEN'),
+        'chat_id' => env('TELEGRAM_CHAT_ID'),
+    ],
+
 ];

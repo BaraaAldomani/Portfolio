@@ -11,6 +11,11 @@
 #   DEPLOY_PATH      e.g. /home/u744145577/public_html
 #   PHP_BIN          server CLI php is 8.2; app needs 8.3. Set to the full path
 #                    /opt/alt/php83/usr/bin/php  (CloudLinux). Defaults to "php".
+#
+# Optional (contact-form lead alerts, written into the server .env each deploy):
+#   TELEGRAM_BOT_TOKEN   from @BotFather
+#   TELEGRAM_CHAT_ID     your chat id (see config/services.php)
+#   LEAD_NOTIFY_EMAIL    inbox for email alerts (needs MAIL_* on the server)
 # ─────────────────────────────────────────────────────────────────────────────
 name: Deploy to Hostinger
 
@@ -61,6 +66,10 @@ jobs:
           SSH_PORT: ${{ secrets.SSH_PORT }}
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
           PHP_BIN: ${{ secrets.PHP_BIN || 'php' }}
+          # Optional: contact-form lead alerts, copied into the server .env.
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          LEAD_NOTIFY_EMAIL: ${{ secrets.LEAD_NOTIFY_EMAIL }}
         run: |
           mkdir -p ~/.ssh && chmod 700 ~/.ssh
           # Strip any Windows CR characters that can mangle a pasted key.
@@ -87,6 +96,18 @@ jobs:
             -e "ssh -p $SSH_PORT -i ~/.ssh/deploy_key" \
             ./ "$SSH_USER@$SSH_HOST:$DEPLOY_PATH/"
 
+          # Secrets that live only in GitHub (never in git) → server .env.
+          # Piped over stdin so they never show up on a command line; empty
+          # secrets are skipped, so nothing set by hand on the server is wiped.
+          printf 'TELEGRAM_BOT_TOKEN=%s\nTELEGRAM_CHAT_ID=%s\nLEAD_NOTIFY_EMAIL=%s\n' \
+            "$TELEGRAM_BOT_TOKEN" "$TELEGRAM_CHAT_ID" "$LEAD_NOTIFY_EMAIL" \
+            | ssh -p "$SSH_PORT" -i ~/.ssh/deploy_key "$SSH_USER@$SSH_HOST" \
+              "cd '$DEPLOY_PATH' && $PHP_BIN scripts/set-env.php"
+
+          # public/robots.txt: Laravel's stock static file, left on the server by
+          # the first upload (rsync never deletes). It shadows the dynamic
+          # /robots.txt route (which lists the sitemap), so remove it every time.
+          #
           # Rebuild on the server. The stale-cache purge MUST be plain `rm`, not
           # an artisan command: every artisan command boots the full framework
           # first, and a cached config.php left by a previous deploy (rsync has
@@ -102,6 +123,7 @@ jobs:
           #   $PHP_BIN artisan app:create-admin       # uses ADMIN_EMAIL / ADMIN_PASSWORD from .env
           ssh -p "$SSH_PORT" -i ~/.ssh/deploy_key "$SSH_USER@$SSH_HOST" "set -e; cd '$DEPLOY_PATH'; \
             rm -f bootstrap/cache/config.php bootstrap/cache/routes-v7.php bootstrap/cache/events.php; \
+            rm -f public/robots.txt; \
             $PHP_BIN artisan optimize:clear; \
             $PHP_BIN artisan migrate --force; \
             $PHP_BIN artisan filament:assets; \

@@ -37,6 +37,8 @@ Route::prefix('{locale}')
         Route::get('/projects/{project}', [ProjectsController::class, 'show'])->name('projects.show');
         Route::get('/about', AboutController::class)->name('about');
         Route::get('/contact', [ContactController::class, 'show'])->name('contact');
-        Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
+        Route::post('/contact', [ContactController::class, 'store'])
+            ->middleware('throttle:5,1') // a person never needs more; slows spam bots
+            ->name('contact.store');
         Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
     });
