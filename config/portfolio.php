@@ -33,26 +33,13 @@ return [
     'experience_years' => 4,
 
     /*
-     * Imagery — single source of truth for photo paths (under public/).
-     * These ship as branded SVG placeholders; to use a real photo later,
-     * drop the file in public/images/... and point the key at it (the
-     * extension can change freely, e.g. 'images/about-portrait.jpg').
+     * Imagery: default photo paths (under public/). Each can be replaced from
+     * the dashboard (Images); the upload then wins over these defaults.
+     * Project screenshots live on each project (dashboard → Projects).
      */
     'images' => [
-        'hero_portrait' => 'images/hero-portrait.svg',
-        'about_portrait' => 'images/baraa-about.jpg',
-        'services' => [
-            'systems' => 'images/services/systems.svg',
-            'web_apps' => 'images/services/web_apps.svg',
-            'websites' => 'images/services/websites.svg',
-            'apis' => 'images/services/apis.svg',
-        ],
-        // Project covers are resolved by slug: images/projects/{slug_en}.svg
-        'projects_dir' => 'images/projects',
-
-        // v3 — brand logo + real photos to drop in later.
-        'logo' => 'images/logo.svg',
-        'portrait' => 'images/baraa-portrait.png',
-        'workspace' => 'images/workspace.svg',
+        'about_portrait' => 'images/baraa-about.webp',
+        // Used for the Person structured data (search engines), not on a page.
+        'portrait' => 'images/baraa-portrait.webp',
     ],
 ];

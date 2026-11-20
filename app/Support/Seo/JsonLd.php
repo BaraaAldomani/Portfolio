@@ -79,11 +79,12 @@ final class JsonLd
 
     /**
      * Answer-shaped Q&A — eligible for FAQ rich results and exactly the format
-     * AI assistants lift verbatim. Questions/answers live in lang/{locale}/seo.php.
+     * AI assistants lift verbatim. Questions/answers live in lang/{locale}/site.php.
      */
     private static function faqPage(): array
     {
-        $items = (array) __('seo.faq');
+        // Same questions the visitor sees on the page (site.faq), as Google requires.
+        $items = (array) __('site.faq.items');
 
         $questions = array_map(fn (array $qa): array => [
             '@type' => 'Question',

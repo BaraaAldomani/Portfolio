@@ -25,7 +25,7 @@ class ThemeSettings extends SettingsPage
     public static function defaultValues(): array
     {
         return [
-            'primary' => '#4f46e5',
+            'primary' => '#24abe3',
             'secondary' => '#0f172a',
             'accent' => '#14b8a6',
         ];

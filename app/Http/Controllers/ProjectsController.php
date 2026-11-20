@@ -20,6 +20,10 @@ final class ProjectsController
     {
         $model = Project::where('slug_' . app()->getLocale(), $project)->firstOrFail();
 
+        // "Next project" wraps around so the reader can keep going.
+        $next = Project::ordered()->where('sort_order', '>', $model->sort_order)->first()
+            ?? Project::ordered()->whereKeyNot($model->getKey())->first();
+
         return view('pages.project-show', [
             'meta' => PageMeta::forContent(
                 $model->localized('title'),
@@ -27,6 +31,7 @@ final class ProjectsController
                 $model->slugsByLocale(),
             ),
             'project' => $model,
+            'next' => $next,
         ]);
     }
 }

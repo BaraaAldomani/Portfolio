@@ -10,6 +10,9 @@ use Filament\Support\Icons\Heroicon;
 
 class ServicesPageSettings extends SettingsPage
 {
+    // Not shown by the current site design (copy lives in lang/*/site.php).
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedWrench;
 
     protected static ?string $navigationLabel = 'Services page';

@@ -29,11 +29,6 @@ class ImageSettings extends SettingsPage
         return [
             'portrait' => null,
             'about_portrait' => null,
-            'service_systems' => null,
-            'service_web_apps' => null,
-            'service_websites' => null,
-            'service_apis' => null,
-            'logo' => null,
         ];
     }
 
@@ -41,23 +36,11 @@ class ImageSettings extends SettingsPage
     {
         return [
             Section::make('People')
+                ->description('Project screenshots are uploaded on each project (Projects).')
                 ->columns(2)
                 ->schema([
-                    $this->upload('portrait', 'Hero portrait'),
-                    $this->upload('about_portrait', 'About portrait'),
-                ]),
-            Section::make('Service illustrations')
-                ->columns(2)
-                ->schema([
-                    $this->upload('service_systems', 'Custom systems'),
-                    $this->upload('service_web_apps', 'Web & mobile'),
-                    $this->upload('service_websites', 'Websites'),
-                    $this->upload('service_apis', 'Integrations & APIs'),
-                ]),
-            Section::make('Branding')
-                ->columns(2)
-                ->schema([
-                    $this->upload('logo', 'Logo'),
+                    $this->upload('about_portrait', 'About page portrait'),
+                    $this->upload('portrait', 'Portrait for search engines'),
                 ]),
         ];
     }

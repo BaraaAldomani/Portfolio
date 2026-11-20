@@ -88,3 +88,16 @@ if (! function_exists('whatsapp_url')) {
         return 'https://wa.me/' . $number . ($text !== '' ? '?text=' . rawurlencode($text) : '');
     }
 }
+
+if (! function_exists('accent')) {
+    /**
+     * Headlines may mark ONE word with *asterisks*; it is set in the
+     * handwritten accent face. Everything else is escaped.
+     */
+    function accent(string $text): \Illuminate\Support\HtmlString
+    {
+        return new \Illuminate\Support\HtmlString(
+            preg_replace('/\*(.+?)\*/u', '<em class="alt">$1</em>', e($text))
+        );
+    }
+}

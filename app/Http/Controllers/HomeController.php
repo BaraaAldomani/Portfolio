@@ -12,7 +12,7 @@ final class HomeController
     {
         return view('pages.home', [
             'meta' => PageMeta::fromLang('home'),
-            'projects' => Project::featured()->get(),
+            'projects' => Project::ordered()->get(),
         ]);
     }
 }

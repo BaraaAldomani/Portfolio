@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Projects\Schemas;
 
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -22,20 +23,51 @@ class ProjectForm
                     ->columns(3)
                     ->schema([
                         Toggle::make('featured')
-                            ->helperText('Show on the home page "Selected work".'),
+                            ->helperText('Show in the home page work showcase.'),
                         TextInput::make('sort_order')
                             ->numeric()
                             ->default(0)
                             ->helperText('Lower shows first.'),
+                        Select::make('kind')
+                            ->options([
+                                'gov' => 'Government (no screenshots)',
+                                'product' => 'Own product',
+                                'client' => 'Client project',
+                                'lab' => 'Earlier work (listed compactly)',
+                            ])
+                            ->default('client')
+                            ->required()
+                            ->native(false),
+                        Select::make('scene')
+                            ->label('Home-page world')
+                            ->options(['sajjah' => 'Sajjah (built in tiles)', 'shattib' => 'Shattib (blueprint to site)', 'rouaa' => 'Rouaa (three tinted phones)', 'nour' => 'Nour (lit by a lamp)'])
+                            ->placeholder('None: listed with the other work')
+                            ->native(false)
+                            ->helperText('Each world is a hand-built section; new ones are added in code.'),
+                        TextInput::make('year')
+                            ->maxLength(20)
+                            ->helperText('e.g. 2026 or 2024 - 2026'),
+                        TextInput::make('live_url')
+                            ->label('Live site URL')
+                            ->url()
+                            ->columnSpan(2)
+                            ->helperText('Shown as a "Visit the site" button.'),
                         FileUpload::make('image_path')
-                            ->label('Cover image')
+                            ->label('Desktop screenshot')
                             ->image()
                             ->imageEditor()
                             ->disk('public')
                             ->directory('images/projects')
                             ->visibility('public')
-                            ->helperText('Leave empty to use the generated placeholder.')
-                            ->columnSpanFull(),
+                            ->helperText('16:10, about 1600px wide. Leave empty to show the headline fact as dot-matrix type instead.')
+                            ->columnSpan(2),
+                        FileUpload::make('mobile_image_path')
+                            ->label('Phone screenshot')
+                            ->image()
+                            ->disk('public')
+                            ->directory('images/projects')
+                            ->visibility('public')
+                            ->helperText('Optional. Overlaps the corner of the desktop shot.'),
                     ]),
 
                 Tabs::make('Content')
@@ -61,6 +93,10 @@ class ProjectForm
                 ->maxLength(255)
                 ->unique(ignoreRecord: true)
                 ->helperText('URL segment, e.g. my-project.'),
+            TextInput::make("name_{$locale}")
+                ->label('Short name')
+                ->maxLength(80)
+                ->helperText('The big display name, e.g. "Sajjah". Falls back to the title.'),
             TextInput::make("title_{$locale}")
                 ->label('Title')
                 ->required()
@@ -75,6 +111,14 @@ class ProjectForm
                 ->required()
                 ->maxLength(500)
                 ->rows(2),
+            TextInput::make("role_{$locale}")
+                ->label('What I built')
+                ->maxLength(200)
+                ->helperText('e.g. The website, booking flow and dashboards.'),
+            TextInput::make("stat_{$locale}")
+                ->label('Headline fact')
+                ->maxLength(120)
+                ->helperText('One short line. Used as the big dot-matrix text when there is no screenshot.'),
             Textarea::make("problem_{$locale}")
                 ->label('Problem')
                 ->required()

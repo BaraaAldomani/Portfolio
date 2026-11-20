@@ -40,15 +40,30 @@ final class Project extends Model
     }
 
     /**
-     * Public URL of the cover image. Uses the DB `image_path` when set (so it
-     * can be swapped per project later), otherwise falls back to the slug-based
-     * placeholder under config('portfolio.images.projects_dir').
+     * Short brand name for display type ("سجّه"); falls back to the full title.
      */
+    public function name(): string
+    {
+        return $this->localized('name') ?: $this->localized('title');
+    }
+
+    /**
+     * Whether a real screenshot exists. Confidential work (government) has
+     * none and is shown as typographic dot art instead.
+     */
+    public function hasCover(): bool
+    {
+        return filled($this->image_path);
+    }
+
     public function coverImage(): string
     {
-        $path = $this->image_path ?: config('portfolio.images.projects_dir') . '/' . $this->slug_en . '.svg';
+        return image_url($this->image_path);
+    }
 
-        return image_url($path);
+    public function mobileImage(): ?string
+    {
+        return $this->mobile_image_path ? image_url($this->mobile_image_path) : null;
     }
 
     /**

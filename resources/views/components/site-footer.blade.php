@@ -5,59 +5,67 @@
     ['label' => __('common.gitlab'), 'href' => setting('contact.gitlab', config('portfolio.gitlab')), 'track' => 'gitlab'],
 ])
 @php($footerNav = [
-    ['services', __('nav.services')],
-    ['projects.index', __('nav.projects')],
-    ['about', __('nav.about')],
-    ['contact', __('nav.contact')],
+    ['projects.index', __('site.nav.work')],
+    ['services', __('site.nav.services')],
+    ['about', __('site.nav.about')],
+    ['contact', __('site.nav.contact')],
 ])
 
-<footer class="mt-24 border-t border-line bg-surface-muted">
-    {{-- CTA band --}}
-    <section class="mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-28">
-        <div class="reveal grid items-end gap-8 lg:grid-cols-[1.5fr_1fr]">
-            <div>
-                <h2 class="text-4xl font-extrabold tracking-tight text-ink sm:text-5xl">{{ setting_text('contact.cta_title', 'v3.cta.title') }}</h2>
-                <p class="mt-4 max-w-lg text-lg leading-relaxed text-muted">{{ setting_text('contact.cta_lead', 'v3.cta.lead') }}</p>
-            </div>
-            <div class="flex flex-wrap gap-3 lg:justify-end">
-                <a href="{{ route('contact') }}" data-track="cta_contact" data-track-from="footer" class="js-magnetic btn-press inline-flex items-center justify-center rounded-full bg-primary px-7 py-3.5 text-sm font-bold text-[#08121b] shadow-lg shadow-primary-600/25 transition-colors hover:bg-primary-400">{{ setting_text('contact.cta_primary', 'v3.cta.primary') }}</a>
-                <a href="mailto:{{ $footerEmail }}" data-track="email" data-track-from="footer" class="btn-press inline-flex items-center justify-center rounded-full border border-line bg-surface px-7 py-3.5 text-sm font-bold text-ink hover:border-primary-300 hover:text-primary-700">{{ __('common.email_me') }}</a>
-            </div>
-        </div>
-    </section>
+<footer>
+    {{-- ═════════ Closing: back to one spark ═════════ --}}
+    @unless (request()->routeIs('contact'))
+        <section class="closing">
+            <span class="closing__spark" aria-hidden="true"></span>
 
-    {{-- columns --}}
-    <div class="mx-auto grid max-w-6xl gap-10 px-5 py-14 sm:px-8 sm:grid-cols-2 lg:grid-cols-4">
-        <div class="sm:col-span-2">
-            <div class="flex items-center gap-3">
-                <img src="{{ image_url(setting('images.logo'), 'portfolio.images.logo') }}" alt="" width="38" height="35" class="h-9 w-auto">
-                <span class="text-base font-extrabold text-ink">{{ __('common.brand') }}</span>
+            <p class="label" data-reveal>{{ __('site.cta.tag') }}</p>
+
+            <h2 class="d-hero">
+                <span class="block" data-words>{{ __('site.cta.l1') }}</span>
+                <span class="block" data-words style="--d:.12s"><em class="alt">{{ __('site.cta.alt') }}</em> {{ __('site.cta.l2') }}</span>
+            </h2>
+
+            <div class="flex flex-wrap items-end justify-between gap-8">
+                <p class="lede max-w-md text-muted" data-reveal>{{ __('site.cta.lead') }}</p>
+                <div class="flex items-center gap-4" data-reveal>
+                    <a href="{{ route('contact') }}" data-track="cta_contact" data-track-from="closing" class="rbtn rbtn--ghost" data-magnetic><span>{{ __('site.cta.form') }}</span></a>
+                    <a href="{{ whatsapp_url() }}" target="_blank" rel="noopener" data-track="whatsapp" data-track-from="closing" class="rbtn rbtn--wa" data-magnetic>
+                        <span><x-icon.whatsapp class="mx-auto mb-1 h-6 w-6" />{{ __('site.cta.whatsapp') }}</span>
+                    </a>
+                </div>
             </div>
-            <p class="mt-4 max-w-xs text-sm leading-relaxed text-muted">{{ __('common.footer_tagline') }}</p>
+        </section>
+    @endunless
+
+    <div class="foot">
+        <div>
+            <a href="{{ route('home') }}" class="nav__brand"><x-logo class="nav__mark" /><span>{{ __('common.brand') }}</span></a>
+            <p class="mt-4 max-w-xs text-sm text-muted">{{ __('site.footer.tagline') }}</p>
         </div>
 
-        <nav aria-label="{{ __('nav.main_navigation') }}">
-            <ul class="space-y-2.5 text-sm">
+        <nav aria-label="{{ __('site.footer.pages') }}">
+            <p class="label">{{ __('site.footer.pages') }}</p>
+            <ul class="mt-3 space-y-1.5">
                 @foreach ($footerNav as [$name, $label])
-                    <li><a href="{{ route($name) }}" class="font-semibold text-muted hover:text-primary-700">{{ $label }}</a></li>
+                    <li><a href="{{ route($name) }}" class="nav__link">{{ $label }}</a></li>
                 @endforeach
             </ul>
         </nav>
 
-        <div class="text-sm">
-            <ul class="space-y-2.5">
+        <div>
+            <p class="label">{{ __('site.footer.reach') }}</p>
+            <ul class="mt-3 space-y-1.5">
                 @foreach ($channels as $c)
-                    <li><a href="{{ $c['href'] }}" target="_blank" rel="noopener" data-track="{{ $c['track'] }}" data-track-from="footer" class="font-semibold text-muted hover:text-primary-700">{{ $c['label'] }}</a></li>
+                    <li><a href="{{ $c['href'] }}" target="_blank" rel="noopener" data-track="{{ $c['track'] }}" data-track-from="footer" class="nav__link">{{ $c['label'] }}</a></li>
                 @endforeach
-                <li><a href="mailto:{{ $footerEmail }}" data-track="email" data-track-from="footer" class="break-all font-semibold text-primary-700 hover:text-primary-800">{{ $footerEmail }}</a></li>
+                <li><a href="mailto:{{ $footerEmail }}" data-track="email" data-track-from="footer" class="nav__link break-all" dir="ltr">{{ $footerEmail }}</a></li>
             </ul>
         </div>
-    </div>
 
-    <div class="border-t border-line">
-        <div class="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-5 py-6 sm:flex-row sm:px-8">
-            <p class="text-xs text-muted">© {{ now()->year }} {{ __('common.brand') }} · {{ __('common.footer_rights') }}</p>
-            <a href="#main" class="text-xs font-bold text-muted hover:text-primary-700">{{ __('common.back_to_top') }} ↑</a>
+        <div class="text-sm text-muted">
+            <p class="label">{{ __('site.footer.local') }}</p>
+            <p class="num mt-3 text-base text-ink" data-clock>--:--</p>
+            <p class="mt-6">© {{ now()->year }} {{ __('common.brand') }}</p>
+            <a href="#main" class="nav__link mt-1 inline-block">{{ __('site.footer.top') }} ↑</a>
         </div>
     </div>
 </footer>

@@ -1,52 +1,85 @@
-<x-layout :meta="$meta">
-    <x-section width="narrow">
-        <a href="{{ route('projects.index') }}" class="reveal inline-flex items-center gap-2 text-sm font-bold text-primary-700 hover:text-primary-800">
-            <svg class="h-4 w-4 ltr:-scale-x-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
-            {{ __('common.view_all_projects') }}
-        </a>
+<x-layout :meta="$meta" page="project">
+    <article>
+        {{-- ═════════ Head ═════════ --}}
+        <header class="page-head">
+            <a href="{{ route('projects.index') }}" class="ulink self-start text-sm" data-reveal>
+                <svg class="arrow-fwd rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+                {{ __('site.pages.project.back') }}
+            </a>
 
-        <header class="mt-6">
-            <p class="reveal text-xs font-bold uppercase tracking-wide text-primary-700">{{ $project->localized('sector') }}</p>
-            <h1 data-reveal-text class="mt-2 text-3xl font-extrabold text-ink sm:text-4xl">{{ $project->localized('title') }}</h1>
-            <p class="reveal mt-4 text-lg leading-relaxed text-muted">{{ $project->localized('summary') }}</p>
-
-            <ul class="reveal mt-5 flex flex-wrap gap-2" aria-label="{{ __('common.highlights') }}">
-                @foreach ($project->highlights() as $highlight)
-                    <li class="rounded-full bg-primary-50 px-3 py-1 text-xs font-bold text-primary-700">{{ $highlight }}</li>
-                @endforeach
-            </ul>
+            <p class="label mt-12" data-reveal>{{ __('site.pages.work.kinds.' . $project->kind) }} · <span class="num">{{ $project->year }}</span></p>
+            <h1 class="d-hero mt-2" data-words>{{ $project->name() }}</h1>
+            <p class="d-3 mt-2 text-muted" data-reveal>{{ $project->localized('title') }}</p>
         </header>
 
-        {{-- Cover banner --}}
-        <div class="reveal mt-10 overflow-hidden rounded-3xl border border-line shadow-xl">
-            <img src="{{ $project->coverImage() }}"
-                 alt="{{ $project->localized('title') }}"
-                 width="1200" height="750" loading="lazy" decoding="async"
-                 class="aspect-[16/10] w-full object-cover">
-        </div>
+        <div class="wrap grid gap-x-10 gap-y-8 pb-16 lg:grid-cols-12">
+            <p class="statement !text-[clamp(1.35rem,2.3vw,2.4rem)] lg:col-span-7" data-reveal>{{ $project->localized('summary') }}</p>
 
-        {{-- Case study --}}
-        <div class="mt-14 space-y-10">
-            @foreach (['problem', 'solution', 'result'] as $i => $section)
-                <section class="reveal-start">
-                    <div class="flex items-center gap-3">
-                        <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-surface-dark text-sm font-extrabold text-ink-on-dark" aria-hidden="true">{{ $i + 1 }}</span>
-                        <h2 class="text-xl font-extrabold text-ink">{{ __('common.' . $section) }}</h2>
+            <dl class="grid grid-cols-2 content-start gap-x-8 gap-y-6 lg:col-span-4 lg:col-start-9" data-reveal>
+                <div>
+                    <dt class="label">{{ __('site.pages.project.sector') }}</dt>
+                    <dd class="mt-1 font-semibold">{{ $project->localized('sector') }}</dd>
+                </div>
+                @if ($project->year)
+                    <div>
+                        <dt class="label">{{ __('site.pages.project.year') }}</dt>
+                        <dd class="num mt-1 font-semibold">{{ $project->year }}</dd>
                     </div>
-                    <p class="mt-3 ps-12 leading-relaxed text-ink/90">{{ $project->localized($section) }}</p>
-                </section>
-            @endforeach
+                @endif
+                @if ($project->localized('role'))
+                    <div class="col-span-2">
+                        <dt class="label">{{ __('site.pages.project.role') }}</dt>
+                        <dd class="mt-1 font-semibold">{{ $project->localized('role') }}</dd>
+                    </div>
+                @endif
+                @if ($project->live_url)
+                    <div class="col-span-2 pt-2">
+                        <a href="{{ $project->live_url }}" target="_blank" rel="noopener" data-track="project_visit" data-track-from="{{ $project->slug_en }}" class="cta">
+                            {{ __('site.work.visit') }}
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>
+                        </a>
+                    </div>
+                @endif
+            </dl>
         </div>
-    </x-section>
 
-    {{-- CTA --}}
-    <x-section bg="dark" width="narrow" class="js-spotlight">
-        <div class="text-center">
-            <h2 class="reveal gradient-text text-2xl font-extrabold sm:text-3xl">{{ setting_text('home.detailcta_title', 'home.cta.title') }}</h2>
-            <p class="reveal mt-3 text-muted-on-dark">{{ setting_text('home.detailcta_lead', 'home.cta.lead') }}</p>
-            <div class="reveal mt-7 flex justify-center">
-                <x-cta-button :href="route('contact')">{{ setting_text('home.detailcta_button', 'home.cta.button') }}</x-cta-button>
-            </div>
+        {{-- ═════════ Picture (or typography for confidential work) ═════════ --}}
+        <div class="wrap">
+            @if ($project->hasCover())
+                <x-window :src="$project->coverImage()" :alt="$project->localized('title')" :name="$project->name()" data-reveal />
+            @else
+                <div class="typo-panel framed" data-reveal>
+                    <p class="typo-panel__big">{{ $project->localized('stat') }}</p>
+                    <p class="label">{{ $project->kind === 'gov' ? __('site.work.confidential') : $project->localized('sector') }}</p>
+                </div>
+            @endif
         </div>
-    </x-section>
+
+        {{-- ═════════ The story: challenge → built → result ═════════ --}}
+        <div class="sec">
+            <div class="rows">
+                @foreach (['problem' => 'challenge', 'solution' => 'solution', 'result' => 'result'] as $field => $label)
+                    <section class="row row--3 !items-start" data-reveal>
+                        <span class="row__n pt-3">{{ sprintf('%02d', $loop->iteration) }}</span>
+                        <h2 class="row__title">{{ __('site.pages.project.' . $label) }}</h2>
+                        <p class="lede leading-loose">{{ $project->localized($field) }}</p>
+                    </section>
+                @endforeach
+            </div>
+
+            <ul class="mt-12 flex flex-wrap gap-x-8 gap-y-3" aria-label="{{ __('common.highlights') }}" data-reveal>
+                @foreach ($project->highlights() as $highlight)
+                    <li class="flex items-center gap-3 font-semibold"><x-star class="h-2 w-2 text-accent" />{{ $highlight }}</li>
+                @endforeach
+            </ul>
+        </div>
+
+        {{-- ═════════ Next ═════════ --}}
+        @if ($next)
+            <a href="{{ route('projects.show', ['project' => $next->slug()]) }}" class="rule block px-[var(--pad)] py-16 lg:py-24" data-cursor="{{ __('site.work.open') }}">
+                <p class="label">{{ __('site.work.next') }}</p>
+                <p class="d-hero mt-2">{{ $next->name() }}</p>
+            </a>
+        @endif
+    </article>
 </x-layout>

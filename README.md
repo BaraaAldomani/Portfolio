@@ -3,7 +3,7 @@
 Bilingual (Arabic-first / English) freelance portfolio for **Baraa Aldomani, Freelance Software Engineer** (Riyadh, Saudi Arabia).
 
 - **Stack:** Laravel 13 · Blade (server-rendered) · Tailwind CSS v4 · Vite · PostgreSQL 16
-- **No SPA, no heavy JS** — Alpine-free, one small vanilla animation utility
+- **No SPA**: server-rendered Blade, with GSAP + Lenis + one WebGL dot field for motion
 - **Bilingual** `/ar` (RTL, default) and `/en` (LTR) with full hreflang/SEO
 - **Dockerized** dev environment (PHP 8.3-FPM, nginx, Postgres, Node)
 
@@ -46,10 +46,11 @@ No Make? Run the underlying `docker compose …` commands directly (see the `Mak
 
 ## Project conventions
 
-- **Colors:** every color is a CSS variable in [`resources/css/tokens.css`](resources/css/tokens.css). Edit the three `--brand-*` values at the top to rebrand the whole site — all shades, surfaces, and the hero aurora derive automatically. No raw hex lives in Blade or Tailwind config.
+- **Design:** read [`DESIGN.md`](DESIGN.md). All colours are tokens in [`resources/css/app.css`](resources/css/app.css); the accent comes from the dashboard.
+- **Prices:** [`config/pricing.php`](config/pricing.php) is the only place prices live (offers + calculator).
 - **Strings:** all copy lives in [`lang/ar`](lang/ar) and [`lang/en`](lang/en) — never hardcoded in Blade.
 - **Contact details / CV path:** centralized in [`config/portfolio.php`](config/portfolio.php).
-- **Animations:** one shared, documented utility — [`resources/js/animations.js`](resources/js/animations.js) (scroll-reveal, counters, terminal, tilt, magnetic). Respects `prefers-reduced-motion` and is RTL-aware.
+- **Motion:** `resources/js/motion/` (dot field, stage, reveals) and `resources/js/ui/`. Respects `prefers-reduced-motion` and is RTL-aware.
 - **Code:** camelCase, slim controllers, small focused methods, no dead code.
 
 ### Replacing the CV

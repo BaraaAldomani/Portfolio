@@ -1,4 +1,4 @@
-@props(['meta'])
+@props(['meta', 'page' => 'page'])
 @php($locale = app()->getLocale())
 @php($jsonLd = \App\Support\Seo\JsonLd::siteGraph($meta->description))
 <!DOCTYPE html>
@@ -24,28 +24,30 @@
     <link rel="icon" href="{{ asset('favicon.svg') }}" sizes="any">
     <link rel="apple-touch-icon" href="{{ asset('favicon.svg') }}">
 
-    <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
-    <link href="https://fonts.bunny.net/css?family=hanken-grotesk:400,500,600,700,800|jetbrains-mono:400,500|cairo:400,600,700&display=swap" rel="stylesheet">
-
     <x-tracking-head />
 
-    <script>document.documentElement.classList.add('js')</script>
-    @vite(['resources/css/app.css', 'resources/css/v3.css', 'resources/js/app.js', 'resources/js/v3.js'])
+    {{-- Motion hides content only under html.js, and the loader shows only on
+         the first view of a session. If the bundle fails to boot within 4s
+         (blocked, offline, old browser) both are undone so every word is
+         visible. --}}
+    <script>(function(d){d.classList.add('js');try{if(!sessionStorage.getItem('seen'))d.classList.add('is-loading')}catch(e){}setTimeout(function(){if(!window.__booted)d.classList.remove('js','is-loading')},4000)})(document.documentElement)</script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    {{-- Dashboard-managed brand colours. These override the three base tokens in
-         tokens.css; every derived shade/surface/glow recomputes via color-mix(). --}}
-    <style>:root{--brand-primary:{{ setting('theme.primary', '#4f46e5') }};--brand-secondary:{{ setting('theme.secondary', '#0f172a') }};--brand-accent:{{ setting('theme.accent', '#14b8a6') }};}</style>
+    {{-- Dashboard-managed accent (Theme settings). Everything else is fixed
+         by the design system in resources/css/app.css. --}}
+    <style>:root{--brand-primary:{{ setting('theme.primary', '#24abe3') }};}</style>
+    <meta name="theme-color" content="#0f172a">
 
     <script type="application/ld+json">{!! json_encode($jsonLd, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}</script>
 </head>
-<body class="relative bg-space font-sans text-ink antialiased">
-    <div id="scroll-progress" class="scroll-progress" aria-hidden="true"></div>
-    <div id="cursor-glow" aria-hidden="true"></div>
+<body data-page="{{ $page }}" class="font-sans text-ink antialiased">
+    <div class="loader" aria-hidden="true">
+        <x-logo class="loader__mark" />
+        <span class="loader__count" data-loader-count>0</span>
+    </div>
+    <div class="grain" aria-hidden="true"></div>
 
-    {{-- Full-document UML / Git architecture watermark, built + sized by v3.js. --}}
-    <div class="netbg" id="netbg" aria-hidden="true"></div>
-
-    <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:start-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-white">
+    <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-[80] focus:rounded-full focus:bg-ink focus:px-5 focus:py-2.5 focus:text-bg">
         {{ __('common.skip_to_content') }}
     </a>
 
@@ -58,9 +60,8 @@
     <x-site-footer />
 
     {{-- Floating WhatsApp: the first-choice channel for clients in KSA. --}}
-    <a href="{{ whatsapp_url() }}" target="_blank" rel="noopener" class="wa-fab" data-track="whatsapp" data-track-from="floating" aria-label="{{ __('common.whatsapp_message') }}">
-        <x-icon.whatsapp class="h-6 w-6 shrink-0" />
-        <span class="wa-fab__label">{{ __('common.whatsapp_message') }}</span>
+    <a href="{{ whatsapp_url() }}" target="_blank" rel="noopener" class="wa-fab" data-wa-fab data-track="whatsapp" data-track-from="floating" aria-label="{{ __('common.whatsapp_message') }}">
+        <x-icon.whatsapp class="h-6 w-6" />
     </a>
 </body>
 </html>

@@ -16,6 +16,9 @@ use Filament\Tables\Table;
 
 class MetricResource extends Resource
 {
+    // Not shown by the current site design (copy lives in lang/*/site.php).
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static ?string $model = Metric::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChartBar;

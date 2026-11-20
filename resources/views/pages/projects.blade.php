@@ -1,17 +1,38 @@
-<x-layout :meta="$meta">
-    <x-section bg="muted" spacing="tight" class="border-b border-line">
-        <div class="mx-auto max-w-2xl text-center">
-            <p class="reveal text-sm font-bold tracking-wide text-primary-700">{{ setting_text('home.projects_eyebrow', 'home.projects.eyebrow') }}</p>
-            <h1 data-reveal-text class="mt-2 text-3xl font-extrabold text-ink sm:text-4xl">{{ setting_text('home.projects_title', 'home.projects.title') }}</h1>
-            <p class="reveal mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-muted">{{ setting_text('home.projects_lead', 'home.projects.lead') }}</p>
-        </div>
-    </x-section>
+<x-layout :meta="$meta" page="work">
+    @php($scenes = $projects->whereNotNull('scene'))
+    @php($earlier = $projects->whereNull('scene'))
 
-    <x-section>
-        <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3" data-stagger>
-            @foreach ($projects as $project)
-                <x-project-card :project="$project" class="reveal" />
-            @endforeach
-        </div>
-    </x-section>
+    <x-page-head :tag="__('site.pages.work.tag') . ' · ' . sprintf('%02d', $projects->count())" :title="__('site.pages.work.title')" :lead="__('site.pages.work.lead')" />
+
+    {{-- Each project in its window, as on the board --}}
+    <section class="wrap grid gap-x-8 gap-y-14 pb-24 lg:grid-cols-2" data-stagger>
+        @foreach ($scenes as $project)
+            <a href="{{ route('projects.show', ['project' => $project->slug()]) }}" class="proj" data-cursor="{{ __('site.work.open') }}" data-reveal>
+                @if ($project->hasCover())
+                    <x-window :src="$project->coverImage()" :alt="$project->localized('title')" :name="$project->name()" />
+                @endif
+                <span class="block">
+                    <span class="uml__stereo !justify-start"><span>«{{ __('site.pages.work.kinds.' . $project->kind) }}»</span><span class="num">{{ $project->year }}</span><span>{{ $project->localized('sector') }}</span></span>
+                    <span class="proj__name block">{{ $project->name() }}</span>
+                    <span class="uml__line block">{{ __('site.worlds.' . $project->scene . '.line') }}</span>
+                </span>
+            </a>
+        @endforeach
+    </section>
+
+    @if ($earlier->isNotEmpty())
+        <section class="sec !pt-0">
+            <h2 class="d-2 mb-10" data-words>{{ __('site.pages.work.earlier') }}</h2>
+            <div class="rows">
+                @foreach ($earlier as $project)
+                    <a href="{{ route('projects.show', ['project' => $project->slug()]) }}" class="row" data-reveal>
+                        <span class="row__n">{{ $project->year }}</span>
+                        <span class="row__title">{{ $project->name() }}</span>
+                        <span class="row__sub">{{ $project->localized('summary') }}</span>
+                        <span class="label">{{ $project->localized('sector') }}</span>
+                    </a>
+                @endforeach
+            </div>
+        </section>
+    @endif
 </x-layout>

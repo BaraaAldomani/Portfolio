@@ -32,7 +32,6 @@
 - APIs and integrations with payment gateways and third-party systems
 
 ## Selected work
-- Tawazoun: high-load national land-eligibility platform (government/housing sector)
 - Eyadti: web + mobile medical appointments system (healthcare)
 - Printly: print-on-demand marketplace with profit sharing (e-commerce)
 - Learny: language-learning platform connecting teachers and students (education)
