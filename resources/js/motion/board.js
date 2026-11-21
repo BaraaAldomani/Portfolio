@@ -3,19 +3,23 @@
  *
  * The drawing speaks the logo's language without copying the logo: one
  * weight of line, corners cut at 45°, octagons, dashed paths, ring nodes, a
- * filled dot, a solid arrowhead. Where a shape has a meaning in UML it is
- * used with that meaning (notes, an actor, a decision, a final state,
- * realization arrows).
+ * filled dot, a solid arrowhead.
  *
- * The story, in the order the camera meets it:
+ * The story is told by one line, in the order the camera meets it:
  *
  *   the hero      an idea is typed, becomes a diagram, becomes a real product (it loops)
- *   the roadmap   four steps down a line, each answering a founder's question
- *   the projects  four windows on a staircase; each is a drawing until the pen arrives
- *   the end       a final state: launch. Then a pull-back over the whole sheet.
+ *   the idea      the line is a tangle, with the founder's questions around it
+ *   the analysis  the same line, in order: three rows, each an answer
+ *   the design    the line draws a screen; what goes in it is still dashed
+ *   the build     the screen again, filled in piece by piece, then checked
+ *   the launch    the line draws a rocket, and the rocket flies to the button
  *
- * A pen travels the route. Ahead of it the line is dashed (planned); behind
- * it, solid (built).
+ * A pen travels the line. Ahead of it the line is dashed (planned); behind
+ * it, solid (built). The interface that gets built is invented: boxes, bars
+ * and a chart, never a real site.
+ *
+ * The sheet is laid out for a right-to-left reader (the line travels to the
+ * left) and mirrored for a left-to-right one.
  *
  * Canvas 2D only: no 3D library, text stays sharp at any zoom, light on
  * phones. Scroll is the timeline (timeline.js). Captions are ordinary HTML.
@@ -65,9 +69,7 @@ function curve(us, vs) {
     };
 }
 
-const PLOT = { w: 1500, h: 938, bar: 58 };
-const PHONE = { w: 330, h: 714 };
-// The hero scene: a prompt, a row of nodes, a small window, and the port the route leaves by.
+// The hero scene: a prompt, a row of nodes, a small window, and the port the line leaves by.
 const HERO = {
     prompt: { x: -450, y: -440, w: 900, h: 130 },
     nodeY: -150,
@@ -76,17 +78,122 @@ const HERO = {
     centre: { x: 0, y: 20 },
     size: { w: 960, h: 1040 },
 };
-// Where the four steps and the four projects stand. Free composition: a line
-// that drops, jogs at 45°, drops again, then a staircase of windows.
-const STEPS = [[-1500, 1300], [-1500, 2100], [-2000, 3500], [-2000, 4300]];
-const BEND = { x: -1750, y: 2750 };
-const SITES = [[-4300, 5300], [-7200, 6300], [-10100, 7300], [-13000, 8300]];
-const FINAL = { x: -14950, y: 8300 };
 const FONT = {
     display: '"Alexandria Variable", "Readex Pro Variable", sans-serif',
     text: '"Readex Pro Variable", "Alexandria Variable", sans-serif',
     mono: '"JetBrains Mono Variable", ui-monospace, monospace',
 };
+
+// ── The drawings on the line ──
+// Each is laid out round its own centre. The line comes in 750 to one side
+// and leaves 750 to the other, then steps down at 45° to the next one.
+const HALF = 750;
+const STEP = 900;
+const SCREEN = { x: -560, y: -400, w: 1120, h: 800, bar: 100, cut: 50 };
+const PHONE = { x: -700, y: 110, w: 220, h: 430, cut: 30 };
+// The rocket, as one closed stroke. It starts and ends at the middle of the
+// nozzle, which is where the line comes in: the rocket sits centred on the
+// end of the line, and the line is its axis.
+const ROCKET = [[0, 340], [100, 340], [70, 270], [130, 270], [260, 400], [260, 260], [130, 130], [130, -290], [0, -420], [-130, -290], [-130, 130], [-260, 260], [-260, 400], [-130, 270], [-70, 270], [-100, 340], [0, 340]];
+const GROUND = 560; // the line runs along here, then turns up into the nozzle
+const WINDOW = { x: 0, y: -130, r: 58 };
+
+/** Cuts every right-angled corner of a polyline at 45°. A third item in a point is its name; it is kept. */
+function chamfer(points, cut) {
+    const out = [points[0]];
+    for (let i = 1; i < points.length - 1; i++) {
+        const [ax, ay] = points[i - 1];
+        const [bx, by] = points[i];
+        const [cx, cy] = points[i + 1];
+        const l1 = Math.hypot(bx - ax, by - ay);
+        const l2 = Math.hypot(cx - bx, cy - by);
+        const dot = ((bx - ax) * (cx - bx) + (by - ay) * (cy - by)) / (l1 * l2);
+        if (Math.abs(dot) > 0.2) {
+            out.push(points[i]);
+            continue;
+        }
+        const k = Math.min(cut, l1 / 2, l2 / 2);
+        out.push([bx - ((bx - ax) / l1) * k, by - ((by - ay) / l1) * k], [bx + ((cx - bx) / l2) * k, by + ((cy - by) / l2) * k]);
+    }
+    out.push(points[points.length - 1]);
+    return out;
+}
+
+/** The idea: a scribble. A smooth line through points thrown across an ellipse, always the same ones. */
+function tangle() {
+    let seed = 97;
+    const random = () => {
+        seed = (seed * 1664525 + 1013904223) >>> 0;
+        return seed / 4294967296;
+    };
+    const through = [[HALF, 0], [600, 0]];
+    const count = 18;
+    let angle = random() * TAU;
+    for (let k = 0; k < count; k++) {
+        // Each point lands well round from the last, so the line keeps crossing itself.
+        angle += 2.2 + random() * 1.5;
+        const reach = 0.55 + random() * 0.45;
+        through.push([lerp(210, -210, k / (count - 1)) + Math.cos(angle) * 440 * reach, Math.sin(angle) * 420 * reach]);
+    }
+    through.push([-600, 0], [-HALF, 0]);
+
+    const out = [];
+    const last = through.length - 1;
+    for (let i = 0; i < last; i++) {
+        const p0 = through[Math.max(0, i - 1)];
+        const p1 = through[i];
+        const p2 = through[i + 1];
+        const p3 = through[Math.min(last, i + 2)];
+        for (let n = 0; n < 16; n++) {
+            const t = n / 16;
+            const t2 = t * t;
+            const t3 = t2 * t;
+            out.push([0, 1].map((d) => 0.5 * (2 * p1[d] + (p2[d] - p0[d]) * t + (2 * p0[d] - 5 * p1[d] + 4 * p2[d] - p3[d]) * t2 + (3 * p1[d] - p0[d] - 3 * p2[d] + p3[d]) * t3)));
+        }
+    }
+    out.push(through[last]);
+    return out;
+}
+
+/** The analysis: the same line in three tidy rows. r0, r1, r2 mark the middle of each. */
+const ROWS = [[40, -260], [-70, 0], [-35, 260]];
+function rows() {
+    return chamfer([
+        [HALF, 0], [640, 0], [640, -260], [...ROWS[0], 'r0'], [-560, -260],
+        [-560, 0], [...ROWS[1], 'r1'], [420, 0],
+        [420, 260], [...ROWS[2], 'r2'], [-490, 260], [-HALF, 0],
+    ], 44);
+}
+
+/**
+ * The design and the build: a screen drawn in one stroke. In along the line
+ * under the bar, over the top, back along the bar, round the bottom, out.
+ */
+function screen() {
+    const { x, y, w, h, bar, cut } = SCREEN;
+    const r = x + w;
+    const b = y + h;
+    const m = y + bar;
+    return [
+        [HALF, m], [r, m],
+        [r, y + cut], [r - cut, y], [x + cut, y], [x, y + cut], [x, m],
+        [r, m],
+        [r, b - cut], [r - cut, b], [x + cut, b], [x, b - cut], [x, m],
+        [-HALF, m],
+    ];
+}
+
+// What stands on the line, in order. `done` is how far through its stop the
+// pen has finished the drawing's own line; `box` is what the camera frames.
+const FIGS = [
+    { kind: 'idea', path: tangle, done: 0.86, box: { x: 0, y: 0, w: 1320, h: 1200 } },
+    { kind: 'analysis', path: rows, done: 0.84, box: { x: 0, y: -30, w: 1320, h: 820 } },
+    { kind: 'design', path: screen, done: 0.6, box: { x: -70, y: 70, w: 1320, h: 980 } },
+    { kind: 'build', path: screen, done: 0.5, box: { x: -70, y: 70, w: 1320, h: 980 } },
+    { kind: 'launch', path: () => [[HALF, GROUND], [90, GROUND], [0, GROUND - 90], ROCKET[0]], done: 0.4, box: { x: 40, y: 70, w: 1150, h: 1140 } },
+];
+// The launch stop, and the landing after it, as parts of the launch stop's own length.
+const FLY = { trace: [0.4, 0.64], hop: [0.64, 0.7], fire: [0.72, 0.84], from: 0.84, to: 1.56 };
 
 const pointAt = (path, s) => {
     for (let i = 1; i < path.length; i++) {
@@ -99,68 +206,67 @@ const pointAt = (path, s) => {
     }
     return path[path.length - 1];
 };
+const measured = (points) => {
+    let len = 0;
+    return points.map(([x, y], i) => {
+        if (i) len += Math.hypot(x - points[i - 1][0], y - points[i - 1][1]);
+        return { x, y, s: len };
+    });
+};
 
-/** Lays out the sheet: the pen's route, and what stands on it. */
-function buildWorld(cfg) {
+/** Lays out the sheet: the pen's line, and the drawings it becomes. `mir` is 1, or -1 to mirror the sheet. */
+function buildWorld(cfg, mir) {
     const pts = [];
     const marks = {};
     let len = 0;
     const to = (x, y) => {
+        const wx = mir * x;
         if (pts.length) {
             const p = pts[pts.length - 1];
-            len += Math.hypot(x - p.x, y - p.y);
+            len += Math.hypot(wx - p.x, y - p.y);
         }
-        pts.push({ x, y, s: len });
+        pts.push({ x: wx, y, s: len });
     };
     const mark = (name) => { marks[name] = len; };
 
-    // Out of the hero, then down.
+    // Out of the hero, down, and a 45° step to where the first drawing begins.
     to(HERO.port.x, HERO.port.y);
     to(-1200, HERO.port.y);
     to(-1500, HERO.port.y + 300);
+    to(-1500, 950);
+    let ex = -2150;
+    let ey = 1400;
+    to(ex + 200, ey);
 
-    const nodes = (cfg.steps || []).slice(0, STEPS.length).map((step, i) => {
-        const [x, y] = STEPS[i];
-        if (i === 2) {
-            // The 45° jog between the two halves of the roadmap carries the decision.
-            to(-1500, 2500);
-            to(BEND.x, BEND.y);
-            mark('bend');
-            to(-2000, 3000);
+    const figs = FIGS.map((fig, j) => {
+        const path = fig.path();
+        const cx = ex - HALF;
+        const cy = ey - path[0][1];
+        to(ex, ey);
+        mark(`f${j}in`);
+        path.slice(1).forEach(([lx, ly, name]) => {
+            to(cx + lx, cy + ly);
+            if (name) mark(`f${j}${name}`);
+        });
+        mark(`f${j}out`);
+        if (j < FIGS.length - 1) {
+            const [lx, ly] = path[path.length - 1];
+            to(cx + lx - 200, cy + ly);
+            ex = cx + lx - 400 - STEP;
+            ey = cy + ly + STEP;
+            to(ex + 200, ey);
         }
-        to(x, y);
-        return { ...step, n: i + 1, question: (cfg.questions || [])[i], x, y, at: len };
+        return { ...fig, j, x: mir * cx, y: cy, title: (cfg.steps || [])[j], box: { x: mir * (cx + fig.box.x), y: cy + fig.box.y, w: fig.box.w, h: fig.box.h }, station: null };
     });
-    if (marks.bend === undefined) mark('bend');
-    to(-2000, 4900);
-    to(-2400, 5300);
-    mark('road');
-
-    // A staircase of windows: along, into the window, out, down a 45° step.
-    const plots = (cfg.plots || []).slice(0, SITES.length).map((plot, j) => {
-        const [x, y] = SITES[j];
-        if (j) {
-            const prev = SITES[j - 1];
-            to(prev[0] - PLOT.w / 2 - 200, prev[1]);
-            to(x + PLOT.w / 2 + 200, y);
-        }
-        to(x + PLOT.w / 2, y);
-        mark(`p${j}in`);
-        to(x - PLOT.w / 2, y);
-        mark(`p${j}out`);
-        return { ...plot, x, y, j };
-    });
-
-    to(FINAL.x, FINAL.y);
     mark('final');
 
-    return { pts, marks, nodes, plots, length: len };
+    return { pts, marks, figs, length: len };
 }
 
 /** The shot list. Camera positions depend on the viewport, so it is rebuilt on resize. */
-function buildKeys(world, stations, contentCount, view, rtl) {
+function buildKeys(world, landingAt, contentCount, view, rtl) {
     const { W, H, small } = view;
-    const { marks, plots, nodes } = world;
+    const { marks, figs } = world;
     const side = rtl ? 1 : -1; // which way the picture is pushed to make room for the text
     const keys = [];
     const add = (u, x, y, zoom, o = {}) => keys.push({ u, x, y, lz: Math.log(zoom), rot: o.rot || 0, head: o.head ?? 0, scrim: o.scrim || 0, shade: o.shade ?? 0 });
@@ -172,63 +278,63 @@ function buildKeys(world, stations, contentCount, view, rtl) {
     add(0, hx, hy, z0);
     add(0.8, hx, hy, z0);
 
-    // The roadmap: the camera goes down the line. On wide screens the line
-    // sits to one side, leaving the reading side to the pinned statement.
-    const zr = small ? Math.min(0.5, W / 800) : Math.min(0.82, W / 1700);
-    const shiftX = small ? 0 : (side * 0.12 * W) / zr;
-    const shiftY = small ? (0.14 * H) / zr : 0;
-    nodes.forEach((node, i) => {
-        add(1.12 + i * 0.27, node.x + shiftX, node.y + shiftY, zr, { head: node.at + (small ? 180 : 260), shade: 1 });
-    });
-
-    // Where a window sits on screen while its card is being read.
-    const frame = (plot) => {
-        const h = PLOT.h + PLOT.bar;
+    // Where a drawing sits on screen while its card is read: beside the card,
+    // or above it on a phone.
+    const frame = (fig) => {
+        const { x, y, w, h } = fig.box;
         if (small) {
-            const z = Math.min((0.9 * W) / PLOT.w, (0.34 * H) / h);
-            return { x: plot.x, y: plot.y + (0.2 * H) / z, z };
+            const z = Math.min((0.94 * W) / w, (0.38 * H) / h);
+            return { x, y: y + (0.15 * H) / z, z };
         }
-        const z = Math.min((0.52 * W) / PLOT.w, (0.6 * H) / h);
-        return { x: plot.x + (side * 0.18 * W) / z, y: plot.y + (0.02 * H) / z, z };
+        const z = Math.min((0.5 * W) / w, (0.64 * H) / h);
+        return { x: x + (side * 0.2 * W) / z, y: y + (0.02 * H) / z, z };
     };
 
-    const first = plots[0];
-    const last = plots[plots.length - 1];
-    stations.forEach((station, j) => {
-        const i = station.index;
-        const plot = plots[j];
-        if (!plot) return;
-        const fr = frame(plot);
-        const inAt = marks[`p${j}in`];
-        if (j === 0) {
-            // Pull right back: all the projects at once, still drawings.
-            const zo = Math.min((0.88 * W) / (first.x - last.x + PLOT.w + 900), (0.76 * H) / (last.y - first.y + PLOT.h + 1300));
-            add(i, -2000 + shiftX * 0.5, 4800, zr * 0.8, { head: marks.road - 300, shade: 0.4 });
-            add(i + 0.2, (first.x + last.x) / 2, (first.y + last.y) / 2 + (small ? (0.05 * H) / zo : 0), zo, { head: marks.road, rot: -0.03 * side });
-        } else {
-            const prev = plots[j - 1];
-            const zm = Math.min((0.86 * W) / 4700, (0.8 * H) / 2500);
-            add(i, (prev.x + plot.x) / 2, (prev.y + plot.y) / 2, zm, { head: lerp(marks[`p${j - 1}out`], inAt, 0.5), rot: (j % 2 ? 0.035 : -0.035) * side });
+    let end = { u: 1, x: hx, y: hy, z: z0 };
+    let pad = null; // the camera at lift-off: the rocket's flight is laid out from it
+    figs.forEach((fig, j) => {
+        if (!fig.station) return;
+        const i = fig.station.index;
+        const fr = frame(fig);
+        const inAt = marks[`f${j}in`];
+        const outAt = marks[`f${j}out`];
+        if (j) {
+            // On the way: far enough back to see where the line came from.
+            const prev = figs[j - 1];
+            const zm = Math.max(Math.min((0.86 * W) / 4400, (0.8 * H) / 2400), fr.z * 0.5);
+            add(i, (prev.box.x + fig.box.x) / 2, (prev.box.y + fig.box.y) / 2, zm, { head: lerp(marks[`f${j - 1}out`], inAt, 0.5), rot: (j % 2 ? 0.03 : -0.03) * side });
         }
-        add(i + 0.46, fr.x, fr.y, fr.z, { head: inAt, shade: 1 });
-        add(i + 0.88, fr.x, fr.y - 10 / fr.z, fr.z * 1.03, { head: inAt, shade: 1 });
-        add(i + 0.94, fr.x, fr.y, fr.z * 0.92, { head: marks[`p${j}out`], shade: 0.4 });
+        add(i + 0.3, fr.x, fr.y, fr.z, { head: inAt, shade: 1 });
+        add(i + fig.done, fr.x, fr.y, fr.z * 1.015, { head: outAt, shade: 1 });
+        if (fig.done < 0.85) add(i + 0.88, fr.x, fr.y, fr.z * 1.03, { head: outAt, shade: 1 });
+        if (j < figs.length - 1) add(i + 0.95, fr.x, fr.y, fr.z * 0.94, { head: outAt, shade: 0.4 });
+        end = { u: i + 1, x: fr.x, y: fr.y, z: fr.z };
     });
 
-    // The final state, then a slow pull-back over the whole sheet while the
-    // long sections are read.
-    const lastStation = stations[stations.length - 1];
-    const endU = lastStation ? lastStation.index + 1 : 2;
-    const zx = small ? 0.3 : Math.min(0.5, (0.5 * W) / 1500);
-    add(endU, FINAL.x + (small ? 0 : 500), FINAL.y, zx, { head: marks.final, scrim: 0.6 });
-    const whole = { x: (HERO.centre.x + FINAL.x) / 2, y: (FINAL.y + HERO.centre.y) / 2, w: HERO.size.w / 2 - FINAL.x + 900, h: FINAL.y + 1700 };
-    const zf = Math.min((0.9 * W) / whole.w, (0.74 * H) / whole.h);
+    // The landing: the rocket crosses the screen to the button while the pad
+    // slides up with the page, so the words arrive on a clean sheet.
+    if (landingAt >= 0) {
+        pad = { x: end.x, y: end.y, z: end.z * 1.03 };
+        add(end.u, pad.x, pad.y, pad.z, { head: marks.final });
+        end.y += (0.95 * H) / end.z;
+        add(landingAt + 0.5, end.x, end.y, end.z, { head: marks.final });
+        end.u = landingAt + 1;
+    }
+    add(end.u, end.x, end.y, end.z, { head: marks.final, scrim: 0.7 });
+
+    // Then a slow pull-back over the whole sheet while the long sections are read.
+    const boxes = [{ ...HERO.centre, ...HERO.size }, ...figs.map((fig) => fig.box)];
+    const x0 = Math.min(...boxes.map((b) => b.x - b.w / 2));
+    const x1 = Math.max(...boxes.map((b) => b.x + b.w / 2));
+    const y0 = Math.min(...boxes.map((b) => b.y - b.h / 2));
+    const y1 = Math.max(...boxes.map((b) => b.y + b.h / 2));
+    const zf = Math.min((0.9 * W) / (x1 - x0 + 700), (0.74 * H) / (y1 - y0 + 700));
     const count = Math.max(1, contentCount);
     for (let n = 1; n <= count; n++) {
         const t = smooth(n / count);
-        add(endU + n, lerp(FINAL.x + 500, whole.x, t), lerp(FINAL.y, whole.y, t), Math.exp(lerp(Math.log(zx), Math.log(zf), t)), { head: marks.final, scrim: 0.86 });
+        add(end.u + n, lerp(end.x, (x0 + x1) / 2, t), lerp(end.y, (y0 + y1) / 2, t), Math.exp(lerp(Math.log(end.z), Math.log(zf), t)), { head: marks.final, scrim: 0.88 });
     }
-    return keys;
+    return { keys, pad };
 }
 
 export function mountBoard(root, { reduced = false } = {}) {
@@ -245,6 +351,7 @@ export function mountBoard(root, { reduced = false } = {}) {
     } catch { /* an empty sheet is still a sheet */ }
 
     const rtl = document.documentElement.dir === 'rtl';
+    const mir = rtl ? 1 : -1; // the sheet is laid out for a right-to-left reader, and mirrored for the other
     const css = getComputedStyle(root);
     const ink = {
         bg: css.getPropertyValue('--board').trim() || '#0f172a',
@@ -253,21 +360,25 @@ export function mountBoard(root, { reduced = false } = {}) {
         text: '#f1f6fb',
     };
 
+    const world = buildWorld(cfg, mir);
     const stations = [];
     sections.forEach((el, index) => {
-        if (el.dataset.station) stations.push({ name: el.dataset.station, el, index, card: el.querySelector('[data-card]') });
+        if (el.dataset.station) stations.push({ name: el.dataset.station, el, index });
     });
+    world.figs.forEach((fig) => { fig.station = stations.find((s) => s.name === fig.kind) || null; });
+    const launch = world.figs.find((fig) => fig.kind === 'launch' && fig.station) || null;
+    const landingAt = sections.findIndex((el) => el.hasAttribute('data-landing'));
     const lastStation = stations[stations.length - 1];
-    const contentCount = sections.length - (lastStation ? lastStation.index + 1 : 2);
-    const world = buildWorld(cfg);
+    const contentCount = sections.length - (landingAt >= 0 ? landingAt + 1 : lastStation ? lastStation.index + 1 : 1);
     const timeline = createTimeline(sections);
     const ideas = cfg.ideas || [];
+    // Where the rocket goes: the button, and the wrapper that lights up when it gets there.
+    const target = root.querySelector('[data-rocket-target]');
+    const pad = root.querySelector('[data-rocket-pad]');
+    const rocketPath = measured(ROCKET);
+    const rocketLen = rocketPath[rocketPath.length - 1].s;
 
-    // ── Pictures: one screenshot per project (and its phone), nothing more ──
-    // Asking for a picture and drawing it are separate: the hero's pictures
-    // are asked for straight away, the stations' only once the page has
-    // settled (or the reader is already on the way), so the first screen
-    // never waits behind pictures that are four screens down.
+    // ── Pictures: only the hero has any (one screenshot per idea) ──
     const pictures = new Map();
     const request = (url) => {
         if (!url || pictures.has(url)) return;
@@ -280,48 +391,27 @@ export function mountBoard(root, { reduced = false } = {}) {
         const img = url ? pictures.get(url) : null;
         return img && img.complete && img.naturalWidth ? img : null;
     };
-    // Screens that cannot show more than 1600 pixels of a screenshot get the lighter copy.
-    let lean = true;
-    const coverOf = (plot) => (lean ? plot.small || plot.image : plot.image);
-    const planOf = (plot) => (lean ? plot.planSmall || plot.plan : plot.plan);
-    let warmed = false;
-    const warm = () => {
-        warmed = true;
-        world.plots.forEach((p) => [coverOf(p), p.phone, planOf(p)].forEach(request));
-    };
     ideas.forEach((idea) => request(idea.image));
-    const settle = () => (window.requestIdleCallback ? window.requestIdleCallback(warm, { timeout: 2500 }) : setTimeout(warm, 1200));
-    if (document.readyState === 'complete') settle();
-    else window.addEventListener('load', settle, { once: true });
-
-    // Rouaa: the swatches decide the tints of the three phones.
-    const rouaa = stations.find((s) => s.name === 'rouaa');
-    const swatches = rouaa ? [...rouaa.el.querySelectorAll('[data-tint]')] : [];
-    const palette = swatches.map((s) => s.dataset.tint);
-    let picked = 0;
-    swatches.forEach((swatch, i) => swatch.addEventListener('click', () => { picked = i; }));
 
     const view = { W: 1, H: 1, dpr: 1, small: false };
     let keys = [];
+    let liftOff = null;
     let path = {};
     const measure = () => {
         view.W = stage.clientWidth || window.innerWidth;
         view.H = window.innerHeight;
         view.small = view.W < 900;
         view.dpr = Math.min(window.devicePixelRatio || 1, 2);
-        lean = view.W * view.dpr <= 2000;
-        if (warmed) warm();
         canvas.width = Math.round(view.W * view.dpr);
         canvas.height = Math.round(view.H * view.dpr);
-        keys = buildKeys(world, stations, contentCount, view, rtl);
+        ({ keys, pad: liftOff } = buildKeys(world, landingAt, contentCount, view, rtl));
         const us = keys.map((k) => k.u);
         path = Object.fromEntries(['x', 'y', 'lz', 'rot'].map((name) => [name, curve(us, keys.map((k) => k[name]))]));
     };
     measure();
 
-    const state = { u: 0, target: 0, tail: 0, tailTarget: 0, px: 0, py: 0, lx: 0, ly: 0, sx: 0, sy: 0, pointerSeen: -1e9 };
+    const state = { u: 0, target: 0, tail: 0, tailTarget: 0, px: 0, py: 0, lx: 0, ly: 0 };
     const cam = { x: 0, y: 0, zoom: 1, rot: 0, head: 0, scrim: 0, shade: 0 };
-    const lamp = { x: 0.3, y: 0.5 };
 
     const locate = (u) => {
         const v = clamp(u, 0, keys[keys.length - 1].u);
@@ -352,13 +442,6 @@ export function mountBoard(root, { reduced = false } = {}) {
         const vx = (x - cam.x) * cam.zoom;
         const vy = (y - cam.y) * cam.zoom;
         return { x: view.W / 2 + vx * c - vy * s, y: view.H / 2 + vx * s + vy * c };
-    };
-    const toWorld = (sx, sy) => {
-        const vx = (sx - view.W / 2) / cam.zoom;
-        const vy = (sy - view.H / 2) / cam.zoom;
-        const c = Math.cos(-cam.rot);
-        const s = Math.sin(-cam.rot);
-        return { x: cam.x + vx * c - vy * s, y: cam.y + vx * s + vy * c };
     };
     /** A box with the logo's cut corners. */
     const cutBox = (x, y, w, h, cut) => {
@@ -469,6 +552,7 @@ export function mountBoard(root, { reduced = false } = {}) {
         const { pts, length } = world;
         ctx.strokeStyle = ink.line;
         ctx.lineJoin = 'miter';
+        ctx.miterLimit = 3; // the tangle turns sharply: no spikes
         // Planned: everything ahead of the pen, in the logo's square dashes.
         ctx.lineCap = 'butt';
         ctx.lineWidth = pen(3.2, 1.4, 3);
@@ -487,23 +571,26 @@ export function mountBoard(root, { reduced = false } = {}) {
         return pointAt(pts, cam.head);
     }
 
-    function drawPen(head, time) {
-        const r = clamp(13 * cam.zoom, 5.5, 16) / cam.zoom;
-        const halo = ctx.createRadialGradient(head.x, head.y, 0, head.x, head.y, r * 7);
+    /** The pen: a glowing dot, the logo's. `r` is given when it is drawn on the screen rather than on the sheet. */
+    function drawPen(x, y, time, r = clamp(13 * cam.zoom, 5.5, 16) / cam.zoom, alpha = 1) {
+        if (alpha <= 0.01) return;
+        ctx.globalAlpha = alpha;
+        const halo = ctx.createRadialGradient(x, y, 0, x, y, r * 7);
         halo.addColorStop(0, 'rgba(36, 171, 227, 0.55)');
         halo.addColorStop(1, 'rgba(36, 171, 227, 0)');
         ctx.fillStyle = halo;
         ctx.beginPath();
-        ctx.arc(head.x, head.y, r * 7, 0, TAU);
+        ctx.arc(x, y, r * 7, 0, TAU);
         ctx.fill();
         ctx.fillStyle = ink.line;
         ctx.beginPath();
-        ctx.arc(head.x, head.y, r * (1 + Math.sin(time * 3) * 0.08), 0, TAU);
+        ctx.arc(x, y, r * (1 + Math.sin(time * 3) * 0.08), 0, TAU);
         ctx.fill();
         ctx.fillStyle = '#ffffff';
         ctx.beginPath();
-        ctx.arc(head.x, head.y, r * 0.36, 0, TAU);
+        ctx.arc(x, y, r * 0.36, 0, TAU);
         ctx.fill();
+        ctx.globalAlpha = 1;
     }
 
     /**
@@ -615,138 +702,19 @@ export function mountBoard(root, { reduced = false } = {}) {
         });
         ctx.globalAlpha = 1;
 
-        // The port the route leaves by: a ring on the window's edge.
+        // The port the line leaves by: a ring on the window's edge, on the side the line travels to.
+        const portX = mir * port.x;
         ctx.beginPath();
-        ctx.arc(port.x, port.y, 22, 0, TAU);
+        ctx.arc(portX, port.y, 22, 0, TAU);
         ctx.fillStyle = ink.bg;
         ctx.fill();
         ctx.strokeStyle = ink.line;
         ctx.lineWidth = pen(5, 1.6, 5);
         ctx.stroke();
         ctx.beginPath();
-        ctx.moveTo(port.x + 22, port.y);
-        ctx.lineTo(win.x, port.y);
+        ctx.moveTo(portX + mir * 22, port.y);
+        ctx.lineTo(mir * win.x, port.y);
         ctx.stroke();
-    }
-
-    /** A UML note: a box with one corner folded, anchored by a dashed line. */
-    function note(text, x, y, w, h, anchor, alpha) {
-        const fold = 34;
-        ctx.globalAlpha = alpha * 0.6;
-        ctx.strokeStyle = ink.text;
-        ctx.lineWidth = px(1.3);
-        ctx.setLineDash([px(5), px(6)]);
-        ctx.beginPath();
-        ctx.moveTo(anchor.x, anchor.y);
-        ctx.lineTo(anchor.x < x ? x : x + w, y + h / 2);
-        ctx.stroke();
-        ctx.setLineDash([]);
-        ctx.globalAlpha = alpha;
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-        ctx.lineTo(x + w - fold, y);
-        ctx.lineTo(x + w, y + fold);
-        ctx.lineTo(x + w, y + h);
-        ctx.lineTo(x, y + h);
-        ctx.closePath();
-        ctx.fillStyle = ink.deep;
-        ctx.fill();
-        ctx.lineWidth = pen(2.4, 1.2, 2.6);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(x + w - fold, y);
-        ctx.lineTo(x + w - fold, y + fold);
-        ctx.lineTo(x + w, y + fold);
-        ctx.stroke();
-        ctx.globalAlpha = 1;
-        label(text, x + w / 2 - 6, y + h / 2 + 4, 33, { font: FONT.display, weight: 700, alpha });
-    }
-
-    function drawRoad() {
-        // UML activity: each step is an action on the line, and beside it the
-        // founder's question that the step answers.
-        const reading = rtl ? -1 : 1; // the side the step's own text sits on
-        world.nodes.forEach((node, i) => {
-            const reached = smooth(cam.head, node.at - 60, node.at + 60);
-            const next = world.nodes[i + 1];
-            // A step steps back once the pen has moved on to the next one.
-            const past = next ? 1 - smooth(cam.head, next.at - 260, next.at + 120) * 0.82 : 1;
-            const shown = smooth(cam.head, node.at - 620, node.at - 160);
-            if (shown <= 0.01) return;
-
-            octagon(node.x, node.y, 44);
-            ctx.fillStyle = reached > 0.5 ? ink.line : ink.bg;
-            ctx.globalAlpha = shown;
-            ctx.fill();
-            ctx.strokeStyle = ink.line;
-            ctx.lineJoin = 'miter';
-            ctx.lineWidth = pen(4, 1.6, 4.5);
-            ctx.stroke();
-            ctx.globalAlpha = 1;
-            ctx.direction = 'ltr';
-            label(String(node.n), node.x, node.y + 3, 34, { font: FONT.mono, weight: 800, color: reached > 0.5 ? ink.bg : ink.line, alpha: shown });
-            ctx.direction = rtl ? 'rtl' : 'ltr';
-
-            const tx = node.x + reading * 96;
-            const align = reading < 0 ? 'right' : 'left';
-            const on = shown * (0.4 + reached * 0.6) * past;
-            label(node.title, tx, node.y - 6, 46, { font: FONT.display, weight: 700, alpha: on, align });
-            if (!view.small) {
-                wrap(node.text, 470, 21, FONT.text, 400).slice(0, 3).forEach((line, n) => {
-                    label(line, tx, node.y + 46 + n * 34, 21, { weight: 400, alpha: on * 0.78, align });
-                });
-            }
-            if (node.question) {
-                const w = 300;
-                const h = 112;
-                note(node.question, reading < 0 ? node.x + 120 : node.x - 120 - w, node.y - h / 2, w, h, { x: node.x - reading * 50, y: node.y }, shown * past);
-            }
-        });
-
-        // UML decision on the jog: nothing is built before the client says yes.
-        const shown = smooth(cam.head, world.marks.bend - 520, world.marks.bend - 120);
-        const passed = smooth(cam.head, world.marks.bend - 20, world.marks.bend + 80);
-        if (shown > 0.01) {
-            ctx.beginPath();
-            ctx.moveTo(BEND.x, BEND.y - 56);
-            ctx.lineTo(BEND.x + 56, BEND.y);
-            ctx.lineTo(BEND.x, BEND.y + 56);
-            ctx.lineTo(BEND.x - 56, BEND.y);
-            ctx.closePath();
-            ctx.globalAlpha = shown;
-            ctx.fillStyle = passed > 0.5 ? ink.line : ink.bg;
-            ctx.fill();
-            ctx.strokeStyle = ink.line;
-            ctx.lineWidth = pen(4, 1.6, 4.5);
-            ctx.stroke();
-            ctx.globalAlpha = 1;
-            label(cfg.labels?.approve, BEND.x - reading * 92, BEND.y - 2, 28, { weight: 600, alpha: shown * 0.95, align: reading < 0 ? 'left' : 'right', color: ink.line });
-        }
-
-        // UML actor at the top of the road: the founder, with the idea in hand.
-        const who = smooth(state.u, 0.9, 1.1) * (1 - smooth(state.u, 1.3, 1.5));
-        if (who > 0.01 && world.nodes.length) {
-            const ax = -1500 - reading * 330;
-            const ay = 880;
-            ctx.strokeStyle = ink.text;
-            ctx.globalAlpha = who * 0.9;
-            ctx.lineWidth = pen(5, 1.6, 5);
-            ctx.lineCap = 'round';
-            ctx.beginPath();
-            ctx.arc(ax, ay - 96, 34, 0, TAU);
-            ctx.moveTo(ax, ay - 62);
-            ctx.lineTo(ax, ay + 40);
-            ctx.moveTo(ax - 62, ay - 22);
-            ctx.lineTo(ax + 62, ay - 22);
-            ctx.moveTo(ax, ay + 40);
-            ctx.lineTo(ax - 50, ay + 124);
-            ctx.moveTo(ax, ay + 40);
-            ctx.lineTo(ax + 50, ay + 124);
-            ctx.stroke();
-            ctx.lineCap = 'butt';
-            ctx.globalAlpha = 1;
-            label(cfg.labels?.you, ax, ay + 178, 34, { font: FONT.display, weight: 700, alpha: who });
-        }
     }
 
     /** A site before it exists: boxes and lines. Right-aligned on the Arabic sheet. */
@@ -862,210 +830,458 @@ export function mountBoard(root, { reduced = false } = {}) {
         ctx.stroke();
     }
 
-    /** A phone: a tall cut box whose screen rises from the bottom as it is built. */
-    function phoneFrame(x, y, w, h, built, image, tint = null) {
-        lifted(built, () => {
-            cutBox(x, y, w, h, 34);
-            ctx.fill();
-        });
-
+    // ── The drawings on the line ──
+    /** A point of a drawing, on the sheet. */
+    const at = (fig, lx, ly) => ({ x: fig.x + mir * lx, y: fig.y + ly });
+    /** Draws in a drawing's own coordinates, mirrored with the sheet. Shapes only: text would come out backwards. */
+    const inFigure = (fig, fn) => {
         ctx.save();
-        cutBox(x, y, w, h, 34);
-        ctx.clip();
-        if (built < 0.999) wireframe(x, y, w, h);
-        if (built > 0.001 && image) {
-            ctx.save();
-            ctx.beginPath();
-            ctx.rect(x, y + h * (1 - built), w, h * built);
-            ctx.clip();
-            const sh = Math.min(image.naturalHeight, image.naturalWidth * (h / w));
-            ctx.drawImage(image, 0, 0, image.naturalWidth, sh, x, y, w, h);
-            if (tint) {
-                // Re-colour the site the way its own dashboard does: hue only.
-                ctx.globalCompositeOperation = 'hue';
-                ctx.fillStyle = tint;
-                ctx.fillRect(x, y, w, h);
-                ctx.globalCompositeOperation = 'source-over';
-            }
-            ctx.restore();
-        }
+        ctx.translate(fig.x, fig.y);
+        ctx.scale(mir, 1);
+        fn();
         ctx.restore();
-        ctx.strokeStyle = ink.line;
-        ctx.lineJoin = 'miter';
-        ctx.lineWidth = pen(4, 1.4, 4);
-        cutBox(x, y, w, h, 34);
+    };
+    /** How much of a drawing's own line the pen has drawn. */
+    const along = (fig) => {
+        const a = world.marks[`f${fig.j}in`];
+        const b = world.marks[`f${fig.j}out`];
+        return clamp((cam.head - a) / (b - a || 1), 0, 1);
+    };
+    const tick = (x, y, k, color) => {
+        ctx.beginPath();
+        ctx.moveTo(x - 0.42 * k, y + 0.02 * k);
+        ctx.lineTo(x - 0.13 * k, y + 0.31 * k);
+        ctx.lineTo(x + 0.44 * k, y - 0.28 * k);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = k * 0.2;
+        ctx.lineCap = 'square';
         ctx.stroke();
-        if (built > 0.004 && built < 0.996) {
-            ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth = pen(6, 2, 6);
-            ctx.beginPath();
-            ctx.moveTo(x - 20, y + h * (1 - built));
-            ctx.lineTo(x + w + 20, y + h * (1 - built));
-            ctx.stroke();
-        }
+        ctx.lineCap = 'butt';
+    };
+    /** A passed check: the logo's octagon, filled, with a tick. It lands a little too big and settles. */
+    const badge = (x, y, r, on) => {
+        if (on <= 0.01) return;
+        const k = r * (0.5 + on * 0.5 + Math.sin(on * Math.PI) * 0.16);
+        ctx.globalAlpha = Math.min(1, on * 1.6);
+        octagon(x, y, k);
+        ctx.fillStyle = ink.line;
+        ctx.fill();
+        tick(x, y, k, ink.bg);
+        ctx.globalAlpha = 1;
+    };
+
+    // The idea: the founder's questions, round the tangle they come out of.
+    const ASKS = [[340, -505, 0.12], [-340, -505, 0.36], [340, 520, 0.58], [-340, 520, 0.8]];
+    function drawIdea(fig, local, time) {
+        const drawn = along(fig);
+        const size = view.small ? 66 : 46;
+        ASKS.forEach(([lx, ly, when], n) => {
+            const on = smooth(drawn, when, when + 0.1);
+            const text = (cfg.questions || [])[n];
+            if (!text || on <= 0.01) return;
+            const p = at(fig, lx, ly + Math.sin(time * 0.9 + n * 1.7) * 9 - (1 - on) * 34 * Math.sign(ly));
+            label(text, p.x, p.y, size, { font: FONT.display, weight: 600, alpha: on * 0.92 });
+        });
     }
 
-    let focus = 0; // 1 while the camera is standing at some station
-    function drawPlot(plot, local) {
-        const total = PLOT.h + PLOT.bar;
-        const x = plot.x - PLOT.w / 2;
-        const y = plot.y - total / 2;
-        const built = local >= 1 ? 1 : smooth(local, 0.48, 0.76);
-        if (!warmed) warm(); // already here before the page settled
-        const shot = picture(coverOf(plot));
+    // The analysis: each row of the line is one answer. A node on the row turns
+    // into a check as the pen passes it.
+    function drawAnalysis(fig) {
+        const size = view.small ? 64 : 48;
+        ROWS.forEach(([lx, ly], n) => {
+            const mark = world.marks[`f${fig.j}r${n}`];
+            const near = smooth(cam.head, mark - 560, mark - 140);
+            const done = smooth(cam.head, mark - 40, mark + 40);
+            if (near <= 0.01) return;
+            const p = at(fig, lx, ly);
+            octagon(p.x, p.y, 34 + done * 6);
+            ctx.globalAlpha = near;
+            ctx.fillStyle = done > 0.5 ? ink.line : ink.bg;
+            ctx.fill();
+            ctx.strokeStyle = ink.line;
+            ctx.lineJoin = 'miter';
+            ctx.lineWidth = pen(4, 1.6, 4.5);
+            ctx.stroke();
+            if (done > 0.5) tick(p.x, p.y, 34, ink.bg);
+            ctx.globalAlpha = 1;
+            label((cfg.rows || [])[n], p.x, p.y - 84, size, { font: FONT.display, weight: 700, alpha: near * (0.55 + done * 0.45) });
+        });
+    }
 
-        // Where the line comes in: the logo's arrowhead. Where it leaves: a ring.
-        ctx.fillStyle = ink.line;
-        arrowhead(x + PLOT.w + 6, plot.y, -1, 0, 46);
-        ctx.beginPath();
-        ctx.arc(x - 34, plot.y, 22, 0, TAU);
-        ctx.fillStyle = ink.bg;
-        ctx.fill();
-        ctx.strokeStyle = ink.line;
-        ctx.lineWidth = pen(5, 1.6, 5);
-        ctx.stroke();
-
-        // The name above it, until the HTML card takes over at the stop.
-        const titled = (local > 0 && local < 1 ? 1 - smooth(local, 0.28, 0.44) : 1) * (1 - focus);
-        label(plot.name, plot.x, y - 96, 110, { font: FONT.display, weight: 800, alpha: titled });
-
-        if (plot.scene === 'rouaa') {
-            // Three phones, three tints of the same site.
-            const screen = picture(plot.phone) || shot;
-            const w = 400;
-            const gap = (PLOT.w - w * 3) / 2;
-            [0, 1, 2].forEach((n) => {
-                const order = 2 - n;
-                const tint = palette.length ? palette[(picked + [0, 2, 3][order]) % palette.length] : null;
-                const rise = local >= 1 ? 1 : smooth(local, 0.46 + order * 0.08, 0.66 + order * 0.08);
-                phoneFrame(x + n * (w + gap), y, w, total, rise, screen, tint);
-            });
+    // The screen that gets designed, then built. An invented interface: a logo,
+    // a menu, a headline, a button, a chart and three cards. tone: what a piece
+    // is made of once it is built.
+    const PIECES = (() => {
+        const list = [
+            { x: 410, y: -262, w: 100, h: 36, tone: 'accent', cut: 10 },
+            { x: -510, y: -250, w: 70, h: 12, tone: 'dim' },
+            { x: -420, y: -250, w: 70, h: 12, tone: 'dim' },
+            { x: -330, y: -250, w: 70, h: 12, tone: 'dim' },
+            { x: 140, y: -180, w: 370, h: 44, tone: 'text' },
+            { x: 250, y: -116, w: 260, h: 32, tone: 'text' },
+            { x: 200, y: -56, w: 310, h: 12, tone: 'dim' },
+            { x: 280, y: -30, w: 230, h: 12, tone: 'dim' },
+            { x: 350, y: 20, w: 160, h: 52, tone: 'accent', cut: 14 },
+            { x: -510, y: -190, w: 570, h: 280, tone: 'panel', cut: 22, holds: 'chart' },
+            { x: 210, y: 150, w: 300, h: 190, tone: 'panel', cut: 18, holds: 'card' },
+            { x: -150, y: 150, w: 300, h: 190, tone: 'panel', cut: 18, holds: 'card' },
+            { x: -510, y: 150, w: 300, h: 190, tone: 'panel', cut: 18, holds: 'card' },
+        ];
+        return list.map((piece, n) => ({ ...piece, order: n / list.length }));
+    })();
+    const HANDSET = (() => {
+        const { x, y } = PHONE;
+        return [
+            { x: x + 80, y: y + 20, w: 60, h: 8, tone: 'dim' },
+            { x: x + 20, y: y + 50, w: 180, h: 130, tone: 'panel', cut: 12 },
+            { x: x + 60, y: y + 204, w: 140, h: 16, tone: 'text' },
+            { x: x + 90, y: y + 236, w: 110, h: 10, tone: 'dim' },
+            { x: x + 70, y: y + 258, w: 130, h: 10, tone: 'dim' },
+            { x: x + 20, y: y + 300, w: 180, h: 44, tone: 'accent', cut: 12 },
+            { x: x + 20, y: y + 366, w: 82, h: 40, tone: 'panel', cut: 8 },
+            { x: x + 118, y: y + 366, w: 82, h: 40, tone: 'panel', cut: 8 },
+        ];
+    })();
+    const outline = (x, y, w, h, cut) => {
+        if (cut) {
+            cutBox(x, y, w, h, cut);
             return;
         }
-
-        windowFrame({ x, y, w: PLOT.w, h: PLOT.h, bar: PLOT.bar, name: plot.name }, built, (bx, by, bw, bh) => {
-            if (plot.scene === 'nour') {
-                // A dark room and one lamp; by the end the whole site is lit.
-                const dark = local >= 1 ? 1 : smooth(local, 0.4, 0.5);
-                if (dark < 1) wireframe(bx, by, bw, bh);
-                ctx.globalAlpha = dark;
-                ctx.fillStyle = '#050403';
-                ctx.fillRect(bx, by, bw, bh);
-                ctx.globalAlpha = 1;
-                if (shot && dark > 0) {
-                    const open = smooth(local, 0.5, 0.7);
-                    const flood = local >= 1 ? 1 : smooth(local, 0.78, 0.9);
-                    const lx = bx + lamp.x * bw;
-                    const ly = by + lamp.y * bh;
-                    const r = 150 + open * 130 + flood * 2200;
-                    ctx.globalAlpha = 0.1 * dark;
-                    ctx.drawImage(shot, bx, by, bw, bh);
-                    [[1.7, 0.22], [1.3, 0.5], [1, 1]].forEach(([k, alpha]) => {
-                        ctx.save();
-                        ctx.beginPath();
-                        ctx.arc(lx, ly, r * k, 0, TAU);
-                        ctx.clip();
-                        ctx.globalAlpha = alpha * smooth(local, 0.44, 0.56);
-                        ctx.drawImage(shot, bx, by, bw, bh);
-                        ctx.restore();
-                    });
-                    ctx.globalAlpha = 1;
-                }
-                return;
-            }
-
-            const plan = picture(planOf(plot));
-            if (plan) {
-                // Its own blueprint, wiped into the real site from the side the pen came in.
-                const cut = bx + bw - built * bw;
-                ctx.drawImage(plan, bx, by, bw, bh);
-                if (shot && built > 0.001) {
-                    ctx.save();
-                    ctx.beginPath();
-                    ctx.rect(cut, by, bx + bw - cut, bh);
-                    ctx.clip();
-                    ctx.drawImage(shot, bx, by, bw, bh);
-                    ctx.restore();
-                }
-                if (built > 0.004 && built < 0.996) {
-                    ctx.strokeStyle = '#ffffff';
-                    ctx.lineWidth = pen(6, 2, 6);
-                    ctx.beginPath();
-                    ctx.moveTo(cut, by);
-                    ctx.lineTo(cut, by + bh);
-                    ctx.stroke();
-                }
-                return;
-            }
-
-            if (built < 0.999) wireframe(bx, by, bw, bh);
-            if (shot && built > 0.001) tiles(shot, bx, by, bw, bh, built, 1);
-        });
-
-        // Its phone, leaning on the corner the pen leaves by.
-        if (plot.phone) {
-            const rise = local >= 1 ? 1 : smooth(local, 0.6, 0.82);
-            phoneFrame(x + 64, y + total - PHONE.h + 96, PHONE.w, PHONE.h, rise, picture(plot.phone));
-        }
-    }
-
-    function drawFinal() {
-        // UML final state: a ring with a filled dot. Launch.
-        const reached = smooth(cam.head, world.marks.final - 400, world.marks.final);
         ctx.beginPath();
-        ctx.arc(FINAL.x, FINAL.y, 120, 0, TAU);
+        ctx.rect(x, y, w, h);
+    };
+    /** A piece as a design: its outline, dashed. */
+    function planned(piece, on) {
+        if (on <= 0.01) return;
+        ctx.globalAlpha = on * 0.85;
+        ctx.strokeStyle = ink.line;
+        ctx.lineWidth = pen(2.4, 1.1, 2.6);
+        ctx.setLineDash([px(7), px(6)]);
+        outline(piece.x, piece.y, piece.w, piece.h, piece.cut);
+        if (piece.holds === 'chart') {
+            // A picture not chosen yet: a box with its diagonals.
+            ctx.moveTo(piece.x + 22, piece.y + 22);
+            ctx.lineTo(piece.x + piece.w - 22, piece.y + piece.h - 22);
+            ctx.moveTo(piece.x + piece.w - 22, piece.y + 22);
+            ctx.lineTo(piece.x + 22, piece.y + piece.h - 22);
+        }
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.globalAlpha = 1;
+    }
+    /** A piece once built: solid, dropping into place. */
+    function built(piece, on) {
+        if (on <= 0.01) return;
+        const k = 0.74 + on * 0.26;
+        const w = piece.w * k;
+        const h = piece.h * k;
+        const x = piece.x + (piece.w - w) / 2;
+        const y = piece.y + (piece.h - h) / 2 - (1 - on) * 30;
+        ctx.globalAlpha = on * (piece.tone === 'dim' ? 0.42 : 1);
+        outline(x, y, w, h, piece.cut ? piece.cut * k : 0);
+        ctx.fillStyle = piece.tone === 'accent' ? ink.line : piece.tone === 'panel' ? ink.deep : ink.text;
+        ctx.fill();
+        if (piece.tone !== 'panel') {
+            ctx.globalAlpha = 1;
+            return;
+        }
+        ctx.strokeStyle = ink.line;
+        ctx.lineJoin = 'miter';
+        ctx.lineWidth = pen(2.6, 1.2, 3);
+        ctx.stroke();
+        const grown = smooth(on, 0.5, 1);
+        if (piece.holds === 'chart') {
+            // Bars that grow from a baseline, the last one the tallest.
+            ctx.fillStyle = ink.line;
+            [70, 112, 92, 150, 128, 196].forEach((tall, n) => {
+                ctx.globalAlpha = on * (n === 5 ? 1 : 0.5);
+                ctx.fillRect(x + 44 + n * 62, y + h - 34 - tall * grown, 38, tall * grown);
+            });
+            ctx.globalAlpha = on * 0.42;
+            ctx.fillStyle = ink.text;
+            ctx.fillRect(x + w - 150, y + 30, 116, 12);
+            ctx.fillRect(x + w - 110, y + 54, 76, 12);
+        }
+        if (piece.holds === 'card') {
+            ctx.globalAlpha = on;
+            ctx.beginPath();
+            ctx.arc(x + w - 50, y + 52, 20, 0, TAU);
+            ctx.stroke();
+            ctx.fillStyle = ink.text;
+            ctx.globalAlpha = on * 0.9;
+            ctx.fillRect(x + w - 30 - 190 * grown, y + 98, 190 * grown, 16);
+            ctx.globalAlpha = on * 0.42;
+            ctx.fillRect(x + w - 30 - 140 * grown, y + 134, 140 * grown, 12);
+        }
+        ctx.globalAlpha = 1;
+    }
+    /** The three rings of a window, on its bar. */
+    function windowRings(on) {
+        if (on <= 0.01) return;
+        ctx.globalAlpha = on;
+        ctx.strokeStyle = ink.line;
+        ctx.lineWidth = pen(2.6, 1.2, 3);
+        [0, 1, 2].forEach((n) => {
+            ctx.beginPath();
+            ctx.arc(SCREEN.x + SCREEN.w - 62 - n * 46, SCREEN.y + SCREEN.bar / 2, 13, 0, TAU);
+            ctx.stroke();
+        });
+        ctx.globalAlpha = 1;
+    }
+    /** The phone leaning on the screen's corner: the same interface, small. */
+    function handset(on, solid) {
+        if (on <= 0.01) return;
+        const { x, y, w, h, cut } = PHONE;
+        const lift = (1 - on) * 40;
+        ctx.save();
+        ctx.translate(0, lift);
+        ctx.globalAlpha = on;
+        cutBox(x, y, w, h, cut);
         ctx.fillStyle = ink.bg;
         ctx.fill();
         ctx.strokeStyle = ink.line;
-        ctx.lineWidth = pen(9, 2, 8);
+        ctx.lineJoin = 'miter';
+        ctx.lineWidth = pen(4, 1.6, 4.5);
+        if (!solid) ctx.setLineDash([px(9), px(7)]);
         ctx.stroke();
-        ctx.beginPath();
-        ctx.arc(FINAL.x, FINAL.y, 66, 0, TAU);
-        ctx.fillStyle = ink.line;
-        ctx.globalAlpha = 0.2 + reached * 0.8;
-        ctx.fill();
+        ctx.setLineDash([]);
+        HANDSET.forEach((piece) => (solid ? built(piece, on) : planned(piece, on)));
+        ctx.restore();
         ctx.globalAlpha = 1;
-        label(cfg.labels?.launch, FINAL.x - 190, FINAL.y + 8, 150, { font: FONT.display, weight: 800, align: 'right', alpha: reached * (1 - cam.scrim) });
     }
 
-    /** Screen space: a dashed UML realization from each built window to the card that specifies it. */
-    function drawLeaders() {
-        if (view.small) return;
-        ctx.setTransform(view.dpr, 0, 0, view.dpr, 0, 0);
+    function drawDesign(fig, local) {
+        const drawn = along(fig);
+        const laid = local >= 1 ? 1 : smooth(local, 0.48, 0.82);
+        inFigure(fig, () => {
+            windowRings(smooth(drawn, 0.3, 0.42));
+            PIECES.forEach((piece) => planned(piece, smooth(laid, piece.order * 0.8, piece.order * 0.8 + 0.2)));
+            handset(local >= 1 ? 1 : smooth(local, 0.72, 0.86), false);
+        });
+    }
+
+    function drawBuild(fig, local) {
+        const drawn = along(fig);
+        const made = local >= 1 ? 1 : smooth(local, 0.42, 0.7);
+        const tested = local >= 1 ? 1 : clamp((local - 0.7) / 0.16, 0, 1);
+        const top = SCREEN.y - 40;
+        const bottom = PHONE.y + PHONE.h + 40;
+        inFigure(fig, () => {
+            windowRings(smooth(drawn, 0.3, 0.42));
+            PIECES.forEach((piece) => built(piece, smooth(made, piece.order * 0.78, piece.order * 0.78 + 0.22)));
+            handset(local >= 1 ? 1 : smooth(local, 0.6, 0.72), true);
+            if (tested > 0 && tested < 1) {
+                // The check: a white line that reads the whole thing, top to bottom.
+                const y = lerp(top, bottom, tested);
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = pen(5, 2, 5);
+                ctx.beginPath();
+                ctx.moveTo(PHONE.x - 50, y);
+                ctx.lineTo(SCREEN.x + SCREEN.w + 50, y);
+                ctx.stroke();
+            }
+        });
+        // Passed, on the computer and on the phone.
+        const span = bottom - top;
+        const passedPhone = at(fig, PHONE.x, PHONE.y);
+        const passedScreen = at(fig, SCREEN.x + SCREEN.w, SCREEN.y + SCREEN.h);
+        badge(passedPhone.x, passedPhone.y, 62, smooth(tested, (PHONE.y - top) / span, (PHONE.y - top) / span + 0.12));
+        badge(passedScreen.x, passedScreen.y, 62, smooth(tested, (SCREEN.y + SCREEN.h - top) / span, (SCREEN.y + SCREEN.h - top) / span + 0.12));
+    }
+
+    // The launch has nothing of its own on the sheet: the line ends in the rocket, and the rocket is drawn on the screen (drawRocket).
+    const drawers = { idea: drawIdea, analysis: drawAnalysis, design: drawDesign, build: drawBuild };
+    let focus = 0; // 1 while the camera is standing at some stop and its card is being read
+    function drawFigures(time) {
+        world.figs.forEach((fig) => {
+            const s = toScreen(fig.box.x, fig.box.y);
+            const reach = (Math.max(fig.box.w, fig.box.h) * cam.zoom) / 2 + 320;
+            if (s.x < -reach || s.x > view.W + reach || s.y < -reach || s.y > view.H + reach) return;
+            const local = fig.station ? state.u - fig.station.index : 0;
+            // Its name above it, until the HTML card takes over at the stop.
+            const begun = smooth(cam.head, world.marks[`f${fig.j}in`] - 1200, world.marks[`f${fig.j}in`]);
+            const left = fig === launch ? 1 - smooth(local, FLY.fire[0], FLY.from) : 1;
+            label(fig.title, fig.box.x, fig.box.y - fig.box.h / 2 - 70, 104, { font: FONT.display, weight: 800, alpha: (0.35 + begun * 0.65) * (1 - focus) * left * (1 - smooth(cam.scrim, 0.05, 0.5)) });
+            drawers[fig.kind]?.(fig, local, time);
+        });
+    }
+
+    // ── The rocket ──
+    // Drawn by the pen where the line ends, then it takes the pen with it (the
+    // dot becomes its window) and flies, across the screen, to the button.
+    const cubic = (a, b, c, d, t) => {
+        const m = 1 - t;
+        return m * m * m * a + 3 * m * m * t * b + 3 * m * t * t * c + t * t * t * d;
+    };
+    const slope = (a, b, c, d, t) => {
+        const m = 1 - t;
+        return 3 * m * m * (b - a) + 6 * m * t * (c - b) + 3 * t * t * (d - c);
+    };
+    let lit = false;
+    const light = (on) => {
+        if (on === lit) return;
+        lit = on;
+        pad?.classList.toggle('is-lit', on);
+    };
+    /** True while the rocket has the pen, so the line's own pen is not drawn as well. */
+    const rocketHasPen = () => Boolean(launch) && state.u - launch.station.index > FLY.trace[0];
+
+    function drawRocket(time) {
+        if (!launch) return;
+        const p = state.u - launch.station.index;
+        const raw = (p - FLY.from) / (FLY.to - FLY.from); // 0 at lift-off, 1 at the button
+        light(raw >= 0.9); // by then it is behind the button
+        if (p <= FLY.trace[0] || raw > 1.3) return;
+
+        const { W, H, dpr } = view;
+        const traced = clamp((p - FLY.trace[0]) / (FLY.trace[1] - FLY.trace[0]), 0, 1);
+        const hop = smooth(p, FLY.hop[0], FLY.hop[1]);
+        const fire = smooth(p, FLY.fire[0], FLY.fire[1]);
+        const q = smooth(clamp(raw, 0, 1));
+        const gone = smooth(q, 0.93, 1);
+
+        // From where it stands, up, over, and down onto the button. Once it is
+        // off the ground the flight is laid out from where the pad stood, not
+        // from where the page has since carried it.
+        const from = toScreen(launch.x, launch.y);
+        if (liftOff && raw > 0) {
+            const free = smooth(raw, 0, 0.24);
+            from.x = lerp(from.x, W / 2 + (launch.x - liftOff.x) * liftOff.z, free);
+            from.y = lerp(from.y, H / 2 + (launch.y - liftOff.y) * liftOff.z, free);
+        }
+        let to = { x: W / 2, y: -H * 0.4 };
+        if (target) {
+            const box = target.getBoundingClientRect();
+            const sheet = canvas.getBoundingClientRect();
+            to = { x: box.left + box.width / 2 - sheet.left, y: Math.min(box.top + box.height / 2 - sheet.top, H * 1.6) };
+        }
+        // It leaves straight up the line it stands on. On a narrow screen the
+        // button is right below, so it comes down from well out to one side
+        // instead of turning on the spot.
+        const lean = Math.sign(to.x - from.x || 1);
+        const xs = [from.x, from.x, to.x - lean * (view.small ? 0.9 : 0.1) * W, to.x];
+        const ys = [from.y, from.y - (view.small ? 0.34 : 0.62) * H, to.y - (view.small ? 0.5 : 0.46) * H, to.y];
+        const x = cubic(...xs, q);
+        const y = cubic(...ys, q);
+        const big = liftOff && raw > 0 ? lerp(cam.zoom, liftOff.z, smooth(raw, 0, 0.24)) : cam.zoom;
+        const k = Math.exp(lerp(Math.log(big), Math.log(Math.min(0.1, big)), smooth(q, 0.3, 1)));
+        const shake = fire * (1 - smooth(q, 0, 0.2));
+
+        // The line it flies along: the line it stood on, carried on through
+        // its centre. It stays tied to the end of the line on the sheet while
+        // the page carries that away.
+        const pad = toScreen(launch.x, launch.y);
+        const pull = { x: pad.x - from.x, y: pad.y - from.y };
+        const point = (a) => {
+            const held = q > 0 ? (1 - a / q) ** 2 : 1;
+            return { x: cubic(...xs, a) + pull.x * held, y: cubic(...ys, a) + pull.y * held };
+        };
+        // It lies along that line: its centre is on it, and so is the middle
+        // of its nozzle, which is found by walking back along the line the
+        // length of its tail. While it is still close to the pad that point
+        // is on the straight stretch under it.
+        const reach = ROCKET[0][1] * k;
+        let aft = null;
+        let before = { x, y };
+        for (let n = 1; n <= 30 && q > 0; n++) {
+            const now = point(q * (1 - n / 30));
+            const far = Math.hypot(now.x - x, now.y - y);
+            if (far >= reach) {
+                const near = Math.hypot(before.x - x, before.y - y);
+                const t = (reach - near) / (far - near || 1);
+                aft = { x: lerp(before.x, now.x, t), y: lerp(before.y, now.y, t) };
+                break;
+            }
+            before = now;
+        }
+        if (!aft) aft = { x: pad.x, y: y + Math.sqrt(Math.max(0, reach * reach - (pad.x - x) ** 2)) };
+        const angle = Math.atan2(y - aft.y, x - aft.x) + Math.PI / 2;
+
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         ctx.strokeStyle = ink.line;
-        ctx.lineWidth = 1.5;
-        const top = stage.getBoundingClientRect().top;
-        stations.forEach((station, j) => {
-            const plot = world.plots[j];
-            const local = state.u - station.index;
-            if (!plot || !station.card || local < 0.5 || local > 0.95) return;
-            const alpha = smooth(local, 0.58, 0.66) * (1 - smooth(local, 0.88, 0.94));
-            if (alpha <= 0.01) return;
-            const r = station.card.getBoundingClientRect();
-            const cardX = rtl ? r.left : r.right;
-            const cardY = r.top - top + 46;
-            const edge = toScreen(plot.x + ((rtl ? 1 : -1) * PLOT.w) / 2, plot.y - 260);
-            const midX = (edge.x + cardX) / 2;
-            const d = rtl ? 1 : -1;
-            ctx.globalAlpha = alpha * 0.9;
-            ctx.setLineDash([6, 6]);
-            ctx.beginPath();
-            ctx.moveTo(edge.x, edge.y);
-            ctx.lineTo(midX, edge.y);
-            ctx.lineTo(midX, cardY);
-            ctx.lineTo(cardX - d * 17, cardY);
-            ctx.stroke();
+        ctx.lineJoin = 'miter';
+        ctx.miterLimit = 3;
+
+        // It lets go of the pad a little after lift-off, and what is left
+        // behind fades from the far end and is gone soon after it lands.
+        const tail = smooth(clamp(raw - 0.26, 0, 1));
+        if (q > 0.002 && tail < q) {
+            const loose = smooth(raw, 0.26, 0.42); // 0 while it is still tied to the end of the line
+            const parts = 30;
+            ctx.lineWidth = clamp(6 * cam.zoom, 2, 6); // the line's own weight
+            if (loose < 1) {
+                // From the nozzle's place on the pad up to where the centre was.
+                ctx.globalAlpha = 1 - loose;
+                ctx.beginPath();
+                ctx.moveTo(pad.x, pad.y + ROCKET[0][1] * cam.zoom);
+                ctx.lineTo(pad.x, pad.y);
+                ctx.stroke();
+            }
+            for (let n = 0; n < parts; n++) {
+                const from2 = point(lerp(tail, q, n / parts));
+                const to2 = point(lerp(tail, q, (n + 1) / parts));
+                ctx.globalAlpha = lerp(1, smooth((n + 1) / parts, 0, 0.5), loose) * (1 - gone * 0.5);
+                ctx.beginPath();
+                ctx.moveTo(from2.x, from2.y);
+                ctx.lineTo(to2.x, to2.y);
+                ctx.stroke();
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        const turn = angle + cam.rot * (1 - q);
+        const ox = x + Math.sin(time * 41) * 1.6 * shake;
+        const oy = y + Math.cos(time * 33) * 1.2 * shake;
+        ctx.save();
+        ctx.translate(ox, oy);
+        ctx.rotate(turn);
+        ctx.scale(k * mir, k);
+        ctx.globalAlpha = 1 - gone;
+        ctx.lineWidth = clamp(6 * k, 1.8, 6) / k;
+        if (fire > 0.01) {
+            // The burn: a dashed line each side of the line it rides on.
+            ctx.setLineDash([24, 16]);
+            ctx.lineDashOffset = -time * 280;
+            [-56, 56].forEach((fx, n) => {
+                const len = 230 * fire * (0.74 + 0.26 * Math.sin(time * 17 + n * 2.1));
+                ctx.beginPath();
+                ctx.moveTo(fx, 352);
+                ctx.lineTo(fx * 1.3, 352 + len);
+                ctx.stroke();
+            });
             ctx.setLineDash([]);
+            ctx.lineDashOffset = 0;
+        }
+        if (hop > 0.01) {
+            // Once the stroke closes it is a body: it hides what is behind it.
             ctx.beginPath();
-            ctx.moveTo(cardX - d, cardY);
-            ctx.lineTo(cardX - d * 17, cardY - 9);
-            ctx.lineTo(cardX - d * 17, cardY + 9);
+            ROCKET.forEach(([rx, ry], n) => ctx[n ? 'lineTo' : 'moveTo'](rx, ry));
             ctx.closePath();
             ctx.fillStyle = ink.bg;
+            ctx.globalAlpha = hop * (1 - gone);
             ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(-130, -290);
+            ctx.lineTo(130, -290);
+            ctx.moveTo(-130, 130);
+            ctx.lineTo(130, 130);
+            ctx.moveTo(WINDOW.x + WINDOW.r, WINDOW.y);
+            ctx.arc(WINDOW.x, WINDOW.y, WINDOW.r, 0, TAU);
             ctx.stroke();
-            ctx.globalAlpha = 1;
-        });
+            ctx.globalAlpha = 1 - gone;
+        }
+        trace(rocketPath, 0, traced * rocketLen);
+        ctx.stroke();
+        ctx.restore();
+        ctx.globalAlpha = 1;
+
+        // The pen: round the outline while it is drawn, then into the window.
+        const tip = traced < 1 ? pointAt(rocketPath, traced * rocketLen) : { x: lerp(ROCKET[0][0], WINDOW.x, hop), y: lerp(ROCKET[0][1], WINDOW.y, hop) };
+        const c = Math.cos(turn);
+        const s = Math.sin(turn);
+        const tx = tip.x * k * mir;
+        const ty = tip.y * k;
+        drawPen(ox + tx * c - ty * s, oy + tx * s + ty * c, time, Math.max(2.4, clamp(13 * k, 0, 16)), 1 - gone);
     }
 
     function draw(time) {
@@ -1085,18 +1301,10 @@ export function mountBoard(root, { reduced = false } = {}) {
         drawGrid();
         const head = drawRoute(time);
         drawHero(time);
-        drawRoad();
-        focus = stations.reduce((most, st) => Math.max(most, smooth(state.u - st.index, 0.3, 0.44) * (1 - smooth(state.u - st.index, 0.92, 1))), 0);
-        world.plots.forEach((plot, j) => {
-            const station = stations[j];
-            const s = toScreen(plot.x, plot.y);
-            const reach = (PLOT.w * cam.zoom) / 2 + 260;
-            if (s.x < -reach || s.x > W + reach || s.y < -reach || s.y > H + reach) return;
-            drawPlot(plot, station ? state.u - station.index : 0);
-        });
-        drawFinal();
-        drawPen(head, time);
-        drawLeaders();
+        focus = stations.reduce((most, st) => Math.max(most, smooth(state.u - st.index, 0.18, 0.3) * (1 - smooth(state.u - st.index, 0.92, 1))), 0);
+        drawFigures(time);
+        if (!rocketHasPen()) drawPen(head.x, head.y, time);
+        drawRocket(time);
 
         stage.style.setProperty('--scrim', cam.scrim.toFixed(3));
         stage.style.setProperty('--shade', cam.shade.toFixed(3));
@@ -1105,23 +1313,6 @@ export function mountBoard(root, { reduced = false } = {}) {
             hud.textContent = `X ${n(cam.x)}  Y ${n(cam.y)}  ×${cam.zoom.toFixed(2)}`;
         }
     }
-
-    const nour = world.plots.find((p) => p.scene === 'nour');
-    const aimLamp = (time) => {
-        if (!nour) return;
-        let tx;
-        let ty;
-        if (performance.now() - state.pointerSeen > 2600) {
-            tx = 0.5 + Math.cos(time * 0.5) * 0.3;
-            ty = 0.5 + Math.sin(time * 0.8) * 0.22;
-        } else {
-            const p = toWorld(state.sx, state.sy);
-            tx = clamp((p.x - (nour.x - PLOT.w / 2)) / PLOT.w, 0, 1);
-            ty = clamp((p.y - (nour.y - PLOT.h / 2)) / PLOT.h, 0, 1);
-        }
-        lamp.x += (tx - lamp.x) * 0.09;
-        lamp.y += (ty - lamp.y) * 0.09;
-    };
 
     const readScroll = () => {
         const { u, tail } = timeline.read();
@@ -1132,9 +1323,6 @@ export function mountBoard(root, { reduced = false } = {}) {
     window.addEventListener('pointermove', (e) => {
         state.px = (e.clientX / window.innerWidth) * 2 - 1;
         state.py = (e.clientY / window.innerHeight) * 2 - 1;
-        state.sx = e.clientX;
-        state.sy = e.clientY;
-        state.pointerSeen = performance.now();
     }, { passive: true });
 
     let resizeTimer;
@@ -1164,7 +1352,6 @@ export function mountBoard(root, { reduced = false } = {}) {
         state.lx += (state.px - state.lx) * (1 - Math.exp(-dt * 2.2));
         state.ly += (state.py - state.ly) * (1 - Math.exp(-dt * 2.2));
         aim(state.u, clock.t);
-        aimLamp(clock.t);
         draw(clock.t);
         requestAnimationFrame(frame);
     };
@@ -1198,12 +1385,12 @@ export function mountBoard(root, { reduced = false } = {}) {
             state.u = state.target = u;
             clock.t = time;
             aim(u, time);
-            aimLamp(time);
             draw(time);
         },
         yFor: (u) => timeline.yFor(u),
         length: keys[keys.length - 1].u,
         stations: stations.map((s) => ({ name: s.name, index: s.index })),
+        landing: landingAt,
     };
     window.__journey = api;
     return api;

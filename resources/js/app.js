@@ -10,7 +10,6 @@ import { initNav } from './ui/nav';
 import { initCursor } from './ui/cursor';
 import { initMagnetic } from './ui/magnetic';
 import { initClock } from './ui/clock';
-import { initRetheme } from './ui/retheme';
 
 // The inline <head> script undoes html.js / html.is-loading if this flag
 // never appears.
@@ -61,7 +60,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     initScrub(env);
     initScenes(env);
-    initRetheme();
     initMagnetic(env);
 
     if (document.querySelector('[data-estimator]')) {

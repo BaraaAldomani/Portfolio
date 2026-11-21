@@ -17,7 +17,14 @@ The owner chose the flat version over the 3D one, and then steered it:
 - show only the first screenshot of each client site;
 - place and format the text better;
 - make the first section less boring (he suggested something being typed);
-- apply the same look to every page of the site.
+- apply the same look to every page of the site;
+- (2026-11-22) the home page explains how the work goes, not the projects,
+  because the goal is clients: under the hero, the one line tells the stages
+  (his idea: a tangle, then tidy, then it draws screens, then a rocket that
+  flies to the contact button). Projects stay on the Work page. **No UML as a
+  way of explaining**: he rejected sequence and activity diagrams ("the client
+  will not understand and will get lost"). The interface that gets built on
+  the line is invented, never a real site.
 
 So the home page is one flat drawing and a camera that travels it
 (`motion/board.js`, Canvas 2D, no library; view `home/board.blade.php`), and
@@ -33,27 +40,57 @@ every other page uses the same kit in HTML and CSS.
   buttons and numbers are octagons. Nothing is rounded except dots and rings.
 - **Marks from the logo:** the filled dot (the pen, a start), the ring (a
   port, an end), the solid arrowhead (direction).
-- **UML, where it means something:** notes with a folded corner for
-  questions, an actor for the founder, a diamond for the decision, a final
-  state (ring with a dot) for launch, a class box for anything described
-  (projects, services), a dashed realization arrow from a built window to the
-  card that specifies it.
+- **UML as a touch, never as the explanation:** the class box is the shape of
+  a card (services, projects, the stops of the home line). Nothing a client
+  has to read is said through a diagram.
 - **Composition is free.** Do not reproduce the logo's layout.
-- **One screenshot per project** (and its phone).
+- **One screenshot per project** (and its phone). On the home page only the
+  hero shows real screenshots.
 
 ### The home page, in the order the camera meets it
 
 | Part | What happens |
 |---|---|
 | Hero | Beside the headline, a loop: a founder's sentence is typed into a prompt, breaks into three or four numbered octagons, and they become a small window that is built from a real project's screenshot. Four ideas, four real projects (`site.b.ideas`). |
-| Roadmap | The camera goes down a line. Each of the four steps is an octagon on it, with the step on one side and the founder's question it answers in a UML note on the other. A diamond on the 45° jog: "your approval first". Two statements are pinned as margin notes. |
-| Projects | A staircase of four windows. First a pull-back that shows all four as drawings, then one stop each: the window is built (Sajjah in tiles, Shattib from its own blueprint, Rouaa as three tinted phones, Nour by lamplight) and a class card describes it. |
-| End | A final state: launch. Then the camera pulls back over the whole sheet while prices, method and questions are read, and the closing headline sits over the whole route. |
+| The idea | The line leaves the hero and becomes a tangle (`tangle()`, always the same scribble). The founder's four questions appear round it as the pen draws it. |
+| The analysis | The same line in three tidy rows. A node on each row turns into a check as the pen passes: what we build, what it costs, when it is ready (`site.b.journey.rows`). |
+| The design | The line draws a screen in one stroke (in under the bar, over the top, back along the bar, round the bottom, out). What goes in it appears dashed: planned. A phone leans on the corner. |
+| The build and test | The same screen, drawn again, then filled in solid piece by piece (`PIECES`: a logo, a menu, a headline, a button, a chart, three cards; all invented). A white line reads it top to bottom and two checks land: computer and phone. |
+| The launch | The line runs along the ground, turns up, and ends in the middle of a rocket's nozzle: the pen draws the rocket from there (`ROCKET`, one closed stroke), so the rocket sits centred on the line (the owner asked for exactly this). The pen goes up the axis into its window, it fires, and lifts off. |
+| The landing | "The first step is free." The rocket crosses the screen and dives into the WhatsApp button (`[data-rocket-target]`), which lights up (`.landing__pad.is-lit`). The pad slides up with the page so the words arrive on a clean sheet. |
+| The rest | The camera pulls back over the whole sheet while prices, method and questions are read, and the closing headline sits over the whole line. |
 
-A pen travels the route; scroll is the timeline (`motion/timeline.js`). Keys
+Each stop is a pinned card in plain words (`home/stations/step.blade.php`): the
+stage, one sentence, and what the client receives. The texts are
+`site.b.journey.*`.
+
+A pen travels the line; scroll is the timeline (`motion/timeline.js`). Keys
 are made in `buildKeys()` from the viewport and joined with a monotone curve
 so a framed shot is never overshot. Words on the sheet come from the lang
 files through `data-board` and exist as HTML too.
+
+How the sheet is built (`motion/board.js`):
+
+- `FIGS` lists the drawings in order. Each gives its own path (a list of
+  points round its centre, entering 750 to one side and leaving 750 to the
+  other), how far through its stop the pen finishes it (`done`), and the box
+  the camera frames. `buildWorld()` strings them into one measured line, with
+  a 45° step between two drawings.
+- The sheet is laid out for a right-to-left reader (the line travels left) and
+  mirrored for English (`mir`). Shapes are drawn inside `inFigure()`, which
+  mirrors them; text never is, so place it with `at()`.
+- The rocket is not on the sheet: it is drawn on the screen (`drawRocket`),
+  because it leaves the sheet. Its flight is a curve from where the pad stood
+  at lift-off (`liftOff`, returned by `buildKeys`) to the button's place on
+  screen, read every frame. Everything follows the scroll position, so
+  scrolling back plays it backwards. `FLY` holds its timing.
+- In flight the rocket stays on the line: what it leaves behind is the line
+  itself, at the line's weight, running on from the end of the line through
+  the rocket's centre. The rocket is turned so that the middle of its nozzle
+  is on that line too (found by walking back along it), not by the curve's
+  tangent, which would let the line come in beside the nozzle on a turn.
+- Without the canvas, or with reduced motion, the stops are a plain list of
+  cards (`.no-webgl`).
 
 ### The kit (every other page)
 
@@ -74,9 +111,10 @@ In `app.css`, under "THE KIT":
 
 - Hero: status line, headline, lead and actions in one column on the reading
   side; the loop plays on the other side (under the text on a phone).
-- Statements are margin notes with a cyan rule; station text lives in the
-  class card. A soft shade (`.board__shade`, `--shade`) sits under them so
-  text never lies on line-work. No glow shadows.
+- A stop's text lives in its card. A soft shade (`.board__shade`, `--shade`)
+  sits under it so text never lies on line-work. No glow shadows.
+- The landing has no card and no shade (the shade would hide the rocket), so
+  the camera clears the line-work from behind its words instead.
 
 ### Still to settle
 
@@ -91,7 +129,7 @@ In `app.css`, under "THE KIT":
 - Prices in structured data, the FAQ and `llms.txt` are read from `config/pricing.php`. Never type a price into copy: use the tokens `faq_items()` fills in.
 - Mark questions up as FAQPage only on pages where the visitor can read them.
 - A project cover `name.webp` may have a lighter sibling `name-s.webp` (1600px). `Project::coverSmall()` finds it; the board and `<x-window>` use it on small screens. Dashboard uploads simply fall back to the cover.
-- The board asks for the hero's pictures at once and for the stations' only after the page has loaded.
+- The board's only pictures are the hero's (one light screenshot per idea).
 
 ## Service pages
 

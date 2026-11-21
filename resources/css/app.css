@@ -585,32 +585,9 @@ html[lang='en'] { --hero-fs: min(10.2vw, 24svh); }
     .no-webgl .intro { min-block-size: 0; padding-block-end: 4rem; }
     .no-webgl .intro__copy { inline-size: min(100%, 46rem); }
 
-    /* The opening statements are pinned on the reading side, with a rule, like
-       a margin note beside the drawing. --jp is how far through the section we are. */
-    .j-wake--pinned { block-size: 330svh; padding: 0; }
-    .j-wake__pin { position: sticky; inset-block-start: 0; block-size: 100svh; }
-    .j-wake--pinned p {
-        position: absolute;
-        inset-inline: var(--pad);
-        inset-block-end: clamp(1.75rem, 6vh, 3.5rem);
-        max-inline-size: 22ch;
-        padding: 0.1em 0;
-        padding-inline-start: 1.1rem;
-        border-inline-start: 3px solid var(--accent);
-        font-size: clamp(1.35rem, 2.5vw, 2.7rem);
-    }
-    @media (min-width: 900px) {
-        .j-wake--pinned p { inset-block: 50% auto; translate: 0 -50%; }
-    }
-    .j-wake--pinned p:nth-of-type(1) { opacity: calc(clamp(0, (var(--jp, 0) - 0.06) * 9, 1) * clamp(0, (0.5 - var(--jp, 0)) * 12, 1)); }
-    .j-wake--pinned p:nth-of-type(2) { opacity: calc(clamp(0, (var(--jp, 0) - 0.56) * 9, 1) * clamp(0, (0.97 - var(--jp, 0)) * 16, 1)); }
-    .no-webgl .j-wake--pinned { block-size: auto; padding: 4rem 0; }
-    .no-webgl .j-wake__pin { position: static; block-size: auto; }
-    .no-webgl .j-wake--pinned p { position: static; opacity: 1; translate: none; margin: 0 var(--pad) 1.5rem; }
-
-    /* The project card: a UML class (name / attributes / operations), cut
-       with the logo's corners. The border is the cyan layer showing round a
-       slightly smaller navy one. */
+    /* The card of a stop on the line: a cut-corner frame with a small top
+       line, a name, and parts under rules. The border is the cyan layer
+       showing round a slightly smaller navy one. */
     .board .j-station__pin { align-items: flex-end; }
     @media (min-width: 900px) { .board .j-station__pin { align-items: center; padding-block: var(--nav-h) 0; } }
     .j-station .uml {
@@ -633,8 +610,6 @@ html[lang='en'] { --hero-fs: min(10.2vw, 24svh); }
     .uml__ops li::before { content: '+'; margin-inline-end: 0.7em; font-family: var(--font-mono); font-weight: 700; color: var(--accent); }
     .uml__hint { font-size: 0.85rem; color: var(--fg-2); }
     .uml__foot { padding-block: 0.9rem 1.1rem; }
-    .uml .swatch { box-shadow: inset 0 0 0 3px var(--panel), 0 0 0 0 var(--c); }
-    .uml .swatch[aria-pressed='true'] { box-shadow: inset 0 0 0 3px var(--panel), 0 0 0 2px #fff; }
     @media (max-width: 899px) {
         .j-station .uml { inline-size: 100%; margin-inline-end: 3.75rem; }
         .j-station .uml__head { padding: 0.9rem 1.1rem 0.8rem; }
@@ -644,22 +619,43 @@ html[lang='en'] { --hero-fs: min(10.2vw, 24svh); }
     }
     .no-webgl .j-station .uml { opacity: 1; transform: none; }
 
+    /* A stop on the line, in plain words: the stage, one sentence, and what
+       the client receives. */
+    .j-station--step { block-size: 290svh; }
+    .j-station .stepcard {
+        --in: clamp(0, calc((var(--jp, 0) - 0.2) * 9), 1);
+        --out: clamp(0, calc((0.93 - var(--jp, 0)) * 16), 1);
+        inline-size: min(100%, 30rem);
+    }
+    .stepcard__text { margin-block-start: 0.6rem; font-size: clamp(1.05rem, 1.35vw, 1.3rem); line-height: 1.8; }
+    .stepcard__out { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2rem 0.8rem; font-family: var(--font-display); font-weight: 600; font-size: 1.05rem; line-height: 1.6; }
+    .stepcard__out span { flex: none; font-family: var(--font-sans); font-weight: 400; font-size: 0.88rem; color: var(--accent); }
+    @media (max-width: 899px) {
+        .j-station--step { block-size: 260svh; }
+        .j-station .stepcard { inline-size: 100%; }
+        .stepcard__text { font-size: 1rem; line-height: 1.7; }
+    }
+
+    /* Where the rocket lands: the first step, and the button it flies to. */
+    .landing { display: flex; align-items: center; min-block-size: 100svh; padding: 6rem var(--pad); }
+    .landing__in { inline-size: min(100%, 44rem); }
+    .landing__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1.25rem 1.75rem; margin-block-start: 2.5rem; }
+    .landing__pad { position: relative; display: inline-flex; }
+    .landing__pad::after { content: ''; position: absolute; inset: -0.5rem; border: 2px solid var(--whatsapp); border-radius: 50%; opacity: 0; pointer-events: none; }
+    .landing__pad.is-lit::after { animation: lit-ring 1.1s var(--ease-out); }
+    .landing__pad.is-lit .rbtn { animation: lit 0.9s var(--ease-out); }
+    @keyframes lit { 0% { scale: 1; } 30% { scale: 1.16; } 100% { scale: 1; } }
+    @keyframes lit-ring { 0% { opacity: 0.9; scale: 0.8; } 100% { opacity: 0; scale: 1.9; } }
+    @media (prefers-reduced-motion: reduce) { .landing__pad.is-lit::after, .landing__pad.is-lit .rbtn { animation: none; } }
+    .no-webgl .landing { min-block-size: 0; }
+    /* Without the canvas the stops are a plain list, one under the other. */
+    .no-webgl .j-station--step .j-station__pin { padding-block: 0.6rem; }
+    .no-webgl .j-station--step .stepcard { inline-size: min(100%, 40rem); }
+
     /* A station: tall, with its card pinned while the camera stands at the
-       window (--jp is how far through it we are, set by timeline.js). */
+       drawing (--jp is how far through it we are, set by timeline.js). */
     .j-station { block-size: 320svh; }
     .j-station__pin { position: sticky; inset-block-start: 0; display: flex; align-items: flex-end; block-size: 100svh; padding: 0 var(--pad) clamp(1.5rem, 5vh, 3rem); overflow: hidden; }
-    .j-station__fallback { display: none; }
-    .swatches { display: flex; gap: 0.6rem; }
-    .swatch {
-        inline-size: 2.4rem;
-        block-size: 2.4rem;
-        border-radius: 50%;
-        background: var(--c);
-        box-shadow: inset 0 0 0 3px var(--bg), 0 0 0 0 var(--c);
-        transition: box-shadow 0.4s var(--ease-out), transform 0.4s var(--ease-out);
-    }
-    .swatch:hover { transform: scale(1.12); }
-    .swatch[aria-pressed='true'] { box-shadow: inset 0 0 0 3px var(--bg), 0 0 0 2px var(--c); }
     @media (max-width: 899px) {
         .j-station { block-size: 280svh; }
     }
@@ -667,7 +663,6 @@ html[lang='en'] { --hero-fs: min(10.2vw, 24svh); }
     /* Without the canvas (or with reduced motion) the home page is a plain page. */
     .no-webgl .j-station { block-size: auto; }
     .no-webgl .j-station__pin { position: static; block-size: auto; padding-block: 5rem; overflow: visible; }
-    .no-webgl .j-station__fallback { display: block; margin-block-start: 1.5rem; border-radius: 1rem; }
     .no-webgl .board .j-station__pin, .board.no-webgl .j-station__pin { flex-direction: column; align-items: flex-start; }
 
     /* ── Portrait (about page) ── */

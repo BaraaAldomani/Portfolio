@@ -1,40 +1,37 @@
 {{-- ═════════ THE BOARD ═════════
      The home page as one flat drawing, and a camera that travels it
-     (resources/js/motion/board.js). The drawing speaks the logo's language
-     (one weight of line, corners cut at 45°, octagons, dashed paths, rings, a
-     dot, an arrowhead) with shapes borrowed from UML.
+     (resources/js/motion/board.js). The drawing speaks the logo's language:
+     one weight of line, corners cut at 45°, octagons, dashed paths, rings, a
+     dot, an arrowhead.
 
        hero       an idea is typed, becomes a diagram, becomes a real product
-       roadmap    four steps down a line, each answering a founder's question
-       projects   four windows; each is a drawing until the pen arrives
+       the line   one line tells how the work goes: a tangle at the idea, in
+                  order at the analysis, drawing screens at the design, filled
+                  in and checked at development, a rocket at the launch
+       landing    the rocket flies to the WhatsApp button
        the rest   read while the camera pulls back over the whole sheet
+
+     Nothing here needs explaining to a client: each stop is a name, one
+     sentence and what they receive. Projects are on the Work page; the only
+     real screenshots on this page are the hero's.
 
      The canvas stays pinned; every [data-j] section scrolls over it. The
      words on the sheet come from the lang files through data-board; the same
      words are also in the HTML below, so the page reads without the canvas. --}}
-@php($order = ['sajjah', 'shattib', 'rouaa', 'nour'])
-@php($stations = collect($order)->map(fn ($scene) => $projects->firstWhere('scene', $scene))->filter()->values())
-@php($archive = $projects->whereNull('scene'))
 @php($byScene = $projects->whereNotNull('scene')->keyBy('scene'))
+@php($steps = (array) __('site.b.journey.steps'))
 @php($board = [
     'labels' => __('site.b.labels'),
     'questions' => array_values((array) __('site.b.questions')),
-    'steps' => collect((array) __('site.process.steps'))->map(fn ($step) => ['title' => $step['title'], 'text' => $step['text']])->values(),
+    'rows' => array_values((array) __('site.b.journey.rows')),
+    // The stops of the line, in order: what stands above each drawing.
+    'steps' => collect($steps)->pluck('title')->values(),
     // The hero loop: a founder's sentence, the parts it breaks into, and the real project it became.
     'ideas' => collect((array) __('site.b.ideas'))->filter(fn ($idea) => $byScene->has($idea['scene']) && $byScene[$idea['scene']]->hasCover())->map(fn ($idea) => [
         'say' => $idea['say'],
         'steps' => $idea['steps'],
         'name' => $byScene[$idea['scene']]->name(),
         'image' => $byScene[$idea['scene']]->coverSmall(),
-    ])->values(),
-    'plots' => $stations->map(fn ($p) => [
-        'scene' => $p->scene,
-        'name' => $p->name(),
-        'image' => $p->hasCover() ? $p->coverImage() : null,
-        'small' => $p->hasCover() ? $p->coverSmall() : null,
-        'phone' => $p->mobileImage(),
-        'plan' => $p->scene === 'shattib' ? asset('images/projects/shattib-plan.webp') : null,
-        'planSmall' => $p->scene === 'shattib' ? asset('images/projects/shattib-plan-s.webp') : null,
     ])->values(),
 ])
 
@@ -77,52 +74,31 @@
         <p class="hero__scroll label" aria-hidden="true">{{ __('site.b.hero.scroll') }}</p>
     </section>
 
-    {{-- Two statements, pinned low on the screen while the line is drawn above them. --}}
-    <section class="j-wake j-wake--pinned" data-j data-j-pin>
-        <div class="j-wake__pin">
-            <p class="statement">{{ __('site.b.a') }}</p>
-            {{-- The roadmap the canvas draws, as text: each question with the step that answers it. --}}
-            <div class="sr-only">
-                <h2>{{ __('site.process.tag') }}</h2>
-                <ol>
-                    @foreach ((array) __('site.process.steps') as $i => $step)
-                        <li>
-                            <strong>{{ $step['title'] }}</strong>
-                            @if ($question = __('site.b.questions')[$i] ?? null) ({{ $question }}) @endif
-                            {{ $step['text'] }}
-                        </li>
-                    @endforeach
-                </ol>
-            </div>
-            <p class="statement">{{ __('site.b.b') }}</p>
-        </div>
-    </section>
-
-    @foreach ($stations as $project)
-        @include('home.stations.card', ['project' => $project, 'n' => $loop->iteration, 'total' => $stations->count()])
+    {{-- The line: five stops. The drawing is on the canvas; this is what each
+         stop says. --}}
+    @foreach ($steps as $key => $step)
+        @include('home.stations.step', ['key' => $key, 'step' => $step, 'n' => $loop->index, 'total' => count($steps) - 1])
     @endforeach
 
-    @if ($archive->isNotEmpty())
-        <section class="sec" data-j>
-            <div class="mb-12 flex flex-wrap items-end justify-between gap-6">
-                <h2 class="d-2" data-words>{{ __('site.worlds.archive.title') }}</h2>
-                <a href="{{ route('projects.index') }}" class="ulink" data-reveal>
-                    {{ __('site.work.all') }}
+    {{-- Where the rocket lands: the first step, which is free. --}}
+    <section class="landing" data-j data-landing>
+        <div class="landing__in">
+            <h2 class="d-2" data-words>{{ accent(__('site.b.journey.landing.title')) }}</h2>
+            <p class="lede mt-6 max-w-xl text-muted" data-reveal>{{ __('site.b.journey.landing.lead') }}</p>
+            <div class="landing__actions" data-reveal>
+                <span class="landing__pad" data-rocket-pad>
+                    <a href="{{ whatsapp_url() }}" target="_blank" rel="noopener" data-track="whatsapp" data-track-from="journey" class="rbtn rbtn--wa" data-rocket-target data-magnetic>
+                        <span><x-icon.whatsapp class="mx-auto mb-1 h-6 w-6" />{{ __('site.cta.whatsapp') }}</span>
+                    </a>
+                </span>
+                <a href="{{ route('services') }}#estimate" data-track="cta_estimate" data-track-from="journey" class="cta cta--line">{{ __('site.hero.cta_estimate') }}</a>
+                <a href="{{ route('projects.index') }}" class="ulink">
+                    {{ __('site.b.journey.landing.work') }}
                     <svg class="arrow-fwd" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
                 </a>
             </div>
-            <div class="rows">
-                @foreach ($archive as $project)
-                    <a href="{{ route('projects.show', ['project' => $project->slug()]) }}" class="row" data-reveal>
-                        <span class="row__n">{{ $project->year }}</span>
-                        <span class="row__title">{{ $project->name() }}</span>
-                        <span class="row__sub">{{ $project->localized('stat') }}</span>
-                        <span class="label">{{ $project->localized('sector') }}</span>
-                    </a>
-                @endforeach
-            </div>
-        </section>
-    @endif
+        </div>
+    </section>
 
     @include('home.offers', ['j' => true])
     @include('home.method', ['j' => true])

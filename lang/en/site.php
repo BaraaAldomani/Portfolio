@@ -40,14 +40,31 @@ return [
             ['say' => 'A site worthy of my kitchen', 'steps' => ['Dishes', 'Experience', 'Contact'], 'scene' => 'nour'],
         ],
         'questions' => ['Where do I start?', 'What will it cost?', 'How long?', 'And after launch?'],
-        'a' => 'Every founder starts with an idea, and with more questions than ideas.',
-        'b' => 'I turn the questions into a plan: what we build first, what it costs, when it launches. Then I build it with you, step by step.',
+        // The word on the tab of the hero's prompt.
         'labels' => [
             'prompt' => 'Your idea',
-            'idea' => 'Your idea',
-            'you' => 'You',
-            'approve' => 'Your approval first',
-            'launch' => 'Launch',
+        ],
+        // The journey under the hero: one line that starts as a tangle and ends
+        // as a rocket. Each stop is a stage of the work, said in one sentence,
+        // with what the client receives at the end of it.
+        'journey' => [
+            'start' => 'The start',
+            'step' => 'Step',
+            'get' => 'You get',
+            // What the tidy lines of the analysis stand for.
+            'rows' => ['What we build', 'What it costs', 'When it is ready'],
+            'steps' => [
+                'idea' => ['title' => 'Your idea', 'text' => 'Every founder starts with an idea, and with more questions than ideas. You do not need to sort them out before we talk.'],
+                'analysis' => ['title' => 'Analysis', 'text' => 'I learn your project and write down what we will build, what it costs and when it will be ready.', 'out' => 'A written quote at a fixed price'],
+                'design' => ['title' => 'Design', 'text' => 'You see what your project looks like and approve it before it is built.', 'out' => 'The screen designs'],
+                'build' => ['title' => 'Development and testing', 'text' => 'I build it and test it on phone and desktop, while you follow a preview.', 'out' => 'A link you follow every week'],
+                'launch' => ['title' => 'Launch', 'text' => 'It goes live on your address, with training and follow-up after.', 'out' => 'Your project live, and everything in your name'],
+            ],
+            'landing' => [
+                'title' => 'The first step is *free*.',
+                'lead' => 'A call where I learn your project, and then the written quote reaches you.',
+                'work' => 'Or see my work first',
+            ],
         ],
     ],
 

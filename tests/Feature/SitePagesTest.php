@@ -37,33 +37,59 @@ class SitePagesTest extends TestCase
         $this->get($path)->assertOk()->assertSee('class="grain"', false);
     }
 
-    public function test_the_home_page_states_the_offer_with_prices_and_real_work(): void
+    public function test_the_home_page_states_the_offer_with_prices(): void
     {
         $this->get('/ar')
             ->assertOk()
             ->assertSee(__('site.b.hero.l3', [], 'ar'))
             ->assertSee(number_format(config('pricing.offers.site.from')))
-            ->assertSee('data-board=', false)
-            ->assertSee('images/projects/sajjah.webp', false);
+            ->assertSee('data-board=', false);
     }
 
-    public function test_each_project_with_a_scene_is_a_stop_on_the_board(): void
+    public function test_the_home_page_tells_how_the_work_goes_in_five_stops(): void
     {
-        $response = $this->get('/ar')->assertOk();
+        foreach (['ar', 'en'] as $locale) {
+            $response = $this->get("/{$locale}")->assertOk();
+            $steps = (array) __('site.b.journey.steps', [], $locale);
 
-        foreach (['sajjah', 'shattib', 'rouaa', 'nour'] as $station) {
-            $response->assertSee('data-station="' . $station . '"', false);
+            // Idea, analysis, design, development and testing, launch: in that order,
+            // each as plain words in the page, with what the client receives.
+            $this->assertSame(['idea', 'analysis', 'design', 'build', 'launch'], array_keys($steps));
+            $response->assertSeeInOrder(array_map(fn (string $key): string => 'data-station="' . $key . '"', array_keys($steps)), false)
+                ->assertSeeInOrder(array_column($steps, 'title'));
+            foreach ($steps as $key => $step) {
+                $response->assertSee($step['text']);
+                if ($key !== 'idea') {
+                    $response->assertSee($step['out']);
+                }
+            }
+
+            // The line ends at the button the rocket flies to.
+            $response->assertSee('data-landing', false)
+                ->assertSee('data-rocket-target', false)
+                ->assertSee('data-track-from="journey"', false)
+                ->assertSee(__('site.b.journey.landing.lead', [], $locale));
+        }
+    }
+
+    public function test_projects_are_on_the_work_page_and_not_stops_on_the_home_page(): void
+    {
+        $home = $this->get('/ar')->assertOk();
+
+        foreach (['sajjah', 'shattib', 'rouaa', 'nour'] as $scene) {
+            $home->assertDontSee('data-station="' . $scene . '"', false);
         }
 
-        // Each stop has its card, and the board gets what it draws from the page.
-        $response->assertSee('data-card', false)
-            ->assertSee('shattib-plan.webp', false)     // Shattib: blueprint that gets built
-            ->assertSee('data-retheme', false)          // Rouaa: re-tint
-            ->assertSee(__('site.b.ideas.0.say', [], 'ar'))   // the hero loop, as real text
-            ->assertSee(__('site.b.questions.0', [], 'ar'));
+        // The hero still plays real ideas (as text too), and the home page leads to the work.
+        $home->assertSee(__('site.b.ideas.0.say', [], 'ar'))
+            ->assertSee('href="' . route('projects.index', ['locale' => 'ar']) . '"', false)
+            ->assertDontSee('برنتلي');
 
-        // Projects without a scene are listed as earlier work, not dropped.
-        $response->assertSee('برنتلي');
+        $work = $this->get('/ar/projects')->assertOk();
+        foreach (Project::whereNotNull('scene')->get() as $project) {
+            $work->assertSee($project->name_ar);
+        }
+        $work->assertSee('برنتلي');
     }
 
     public function test_a_project_page_shows_its_window_and_work_without_a_screenshot_shows_none(): void
