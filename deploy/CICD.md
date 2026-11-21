@@ -192,5 +192,16 @@ for that reason, and the deploy's checks add a query so they never read a
 stored copy. If pages bounce between the two addresses right after a switch,
 flush the CDN cache in hPanel or wait those few minutes.
 
+### Where the files live
+
+Since 21 Nov 2026 the install is in `~/domains/baraadom.com/public_html`, and
+`~/domains/baraa.rakeez-llc.com/public_html` is a link to it (the reverse of
+the first day of the move). `INSTALL_DOMAIN` in the workflow names the folder
+that holds the install; the `DEPLOY_PATH` secret may still name the first
+folder, the workflow works the real path out from it. `scripts/relocate.sh`
+did the move (a rename with a link left behind) and does nothing once it is
+done. Keep the first domain on the hosting account: it is what redirects old
+links. Removing it from hPanel removes only the link, not the site.
+
 To undo the link: `rm ~/domains/<domain>/public_html && mv ~/domains/<domain>/public_html.before-alias ~/domains/<domain>/public_html`.
 To undo the switch: set `PRIMARY_URL` back and push.

@@ -42,11 +42,16 @@ jobs:
       # Change it only after the new address already serves this folder: the
       # deploy refuses otherwise.
       PRIMARY_URL: https://baraadom.com
+      # The domain whose folder holds the install: ~/domains/<it>/public_html.
+      # The DEPLOY_PATH secret may still name the folder of the first domain
+      # on the account; the real path is worked out from this, and the install
+      # is moved there once by scripts/relocate.sh.
+      INSTALL_DOMAIN: baraadom.com
       # Other domains on the same hosting account that serve this same folder
-      # (space separated). scripts/link-alias.sh links each one's public_html
-      # to DEPLOY_PATH. The install lives in the folder of the first domain,
-      # baraa.rakeez-llc.com, which now only redirects here.
-      ALIAS_DOMAINS: baraadom.com
+      # (space separated). scripts/link-alias.sh keeps each one's public_html
+      # a link to the install. baraa.rakeez-llc.com was the first address and
+      # now only redirects to the primary one.
+      ALIAS_DOMAINS: baraa.rakeez-llc.com
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -95,6 +100,15 @@ jobs:
           ssh -p "$SSH_PORT" -i ~/.ssh/deploy_key -o BatchMode=yes \
             -o StrictHostKeyChecking=accept-new \
             "$SSH_USER@$SSH_HOST" 'echo SSH_OK; whoami; pwd'
+
+          # Where the install lives (see INSTALL_DOMAIN above). Both folders are
+          # under the same ~/domains. If it is still in the first one, it is
+          # moved now: a rename, with a link left behind, so nothing is copied
+          # and the database, .env and uploads are untouched.
+          FIRST_PATH="$DEPLOY_PATH"
+          DEPLOY_PATH="$(dirname "$(dirname "$FIRST_PATH")")/$INSTALL_DOMAIN/public_html"
+          ssh -p "$SSH_PORT" -i ~/.ssh/deploy_key "$SSH_USER@$SSH_HOST" \
+            "sh -s -- '$FIRST_PATH' '$DEPLOY_PATH'" < scripts/relocate.sh
 
           # Changing PRIMARY_URL sends every visitor to the new address. Refuse
           # unless that address already answers with this site (its robots.txt
