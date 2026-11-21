@@ -3,6 +3,7 @@
 namespace App\Support\Seo;
 
 use App\Models\Project;
+use App\Support\ServicePages;
 use Illuminate\Support\Collection;
 
 /**
@@ -11,7 +12,7 @@ use Illuminate\Support\Collection;
  * One interlinked graph per page: who (Person), what he sells
  * (ProfessionalService with a priced offer catalogue), the site, this page and
  * where it sits (WebPage + BreadcrumbList), and whatever the page itself adds
- * (a project, the list of projects, its questions and answers).
+ * (a project, the list of projects, one service, its questions and answers).
  *
  * Search engines use it for rich results and the knowledge panel; answer
  * engines and AI assistants read it to identify the person, quote prices and
@@ -55,13 +56,47 @@ final class JsonLd
             'description' => $project->localized('summary'),
             'url' => $url,
             'image' => $project->hasCover() ? $project->coverImage() : null,
-            'genre' => $project->localized('sector'),
+            'genre' => array_values(array_filter(array_map('trim', explode('·', (string) $project->localized('sector'))))) ?: null,
             'dateCreated' => preg_match('/\d{4}/', (string) $project->year, $m) ? $m[0] : null,
+            'dateModified' => $project->updated_at?->toDateString(),
             'inLanguage' => app()->getLocale(),
             'creator' => ['@id' => url('/') . '#person'],
-            'sameAs' => $project->live_url ?: null,
+            'mainEntityOfPage' => ['@id' => $url . '#webpage'],
+            // This page tells the story of the work; the live site is the work
+            // itself, so it is given as an example of it, not as "the same thing".
+            'workExample' => $project->live_url ? ['@type' => 'WebSite', 'name' => $project->name(), 'url' => $project->live_url] : null,
             'keywords' => implode(', ', $project->highlights()) ?: null,
         ]);
+    }
+
+    /**
+     * One service on its own page: what it is, who provides it, and from what
+     * price. The price is read from the price guide, like everywhere else.
+     *
+     * @param array<string, mixed> $content the page's words (ServicePages::content)
+     */
+    public static function service(string $key, string $url, array $content): array
+    {
+        return [
+            '@type' => 'Service',
+            '@id' => $url . '#service',
+            'name' => $content['name'],
+            'serviceType' => __("site.offers.items.$key.title"),
+            'description' => $content['answer'],
+            'url' => $url,
+            'provider' => ['@id' => url('/') . '#service'],
+            'areaServed' => ['@type' => 'Country', 'name' => 'Saudi Arabia'],
+            'offers' => [
+                '@type' => 'Offer',
+                'url' => $url,
+                'priceCurrency' => 'SAR',
+                'priceSpecification' => [
+                    '@type' => 'PriceSpecification',
+                    'minPrice' => (int) config("pricing.offers.$key.from"),
+                    'priceCurrency' => 'SAR',
+                ],
+            ],
+        ];
     }
 
     /** @param Collection<int, Project> $projects */
@@ -86,17 +121,20 @@ final class JsonLd
             '@type' => 'Person',
             '@id' => url('/') . '#person',
             'name' => __('common.brand'),
-            'alternateName' => app()->getLocale() === 'ar' ? 'Baraa Aldomani' : 'بَراء الدوماني',
+            // The other language's spelling, and the Arabic name as people type
+            // it in a search box, without the vowel mark.
+            'alternateName' => [app()->getLocale() === 'ar' ? 'Baraa Aldomani' : 'بَراء الدوماني', 'براء الدوماني'],
             'jobTitle' => __('seo.site.job_title'),
             'description' => __('seo.site.service_description'),
             'url' => route('home', ['locale' => app()->getLocale()]),
             'image' => image_url(setting('images.portrait'), 'portfolio.images.portrait'),
-            'email' => 'mailto:' . setting('contact.email', config('portfolio.email')),
+            'email' => setting('contact.email', config('portfolio.email')),
             'address' => self::riyadhAddress(),
+            'worksFor' => ['@id' => url('/') . '#service'],
             'sameAs' => self::sameAs(),
             'knowsAbout' => ['Software Engineering', 'Web Development', 'Mobile App Development', 'Laravel', 'PHP', 'REST APIs', 'System Design', 'Booking Platforms', 'E-commerce', 'Payment Integrations', 'AI Automation'],
             'knowsLanguage' => ['Arabic', 'English'],
-            'alumniOf' => 'Damascus University',
+            'alumniOf' => ['@type' => 'CollegeOrUniversity', 'name' => 'Damascus University', 'alternateName' => 'جامعة دمشق'],
         ]);
     }
 
@@ -108,15 +146,18 @@ final class JsonLd
         return array_filter([
             '@type' => 'ProfessionalService',
             '@id' => url('/') . '#service',
-            'name' => __('seo.site.service_name'),
+            // The name a client knows him by; the descriptive phrase is an alternate.
+            'name' => __('common.brand'),
+            'alternateName' => __('seo.site.service_name'),
             'description' => __('seo.site.service_description'),
             'url' => route('home', ['locale' => app()->getLocale()]),
-            'image' => asset('images/og.png'),
+            'logo' => asset('images/logo-512.png'),
+            'image' => share_image(),
             'email' => setting('contact.email', config('portfolio.email')),
             'telephone' => '+' . ltrim((string) setting('contact.whatsapp', config('portfolio.whatsapp')), '+'),
             'founder' => ['@id' => url('/') . '#person'],
             'address' => self::riyadhAddress(),
-            'areaServed' => ['@type' => 'Country', 'name' => 'Saudi Arabia'],
+            'areaServed' => [['@type' => 'City', 'name' => 'Riyadh'], ['@type' => 'Country', 'name' => 'Saudi Arabia']],
             'knowsLanguage' => ['Arabic', 'English'],
             'priceRange' => $from ? 'SAR ' . number_format($from) . '+' : null,
             'hasOfferCatalog' => $offers ? self::offerCatalog($offers) : null,
@@ -132,26 +173,24 @@ final class JsonLd
      */
     private static function offerCatalog(array $offers): array
     {
-        $services = route('services', ['locale' => app()->getLocale()]);
-
         return [
             '@type' => 'OfferCatalog',
             'name' => __('site.pages.services.tag'),
             'itemListElement' => collect($offers)->map(fn (array $price, string $key): array => [
                 '@type' => 'Offer',
-                'url' => $services . '#' . $key,
+                'url' => ServicePages::url($key),
                 'priceCurrency' => 'SAR',
                 'priceSpecification' => [
                     '@type' => 'PriceSpecification',
                     'minPrice' => $price['from'],
                     'priceCurrency' => 'SAR',
                 ],
+                // The service is described once, on its own page; here it is
+                // named and pointed at, so the two never drift apart.
                 'itemOffered' => [
                     '@type' => 'Service',
-                    'name' => __("site.offers.items.$key.title"),
-                    'description' => __("site.offers.items.$key.blurb"),
-                    'provider' => ['@id' => url('/') . '#person'],
-                    'areaServed' => ['@type' => 'Country', 'name' => 'Saudi Arabia'],
+                    '@id' => ServicePages::url($key) . '#service',
+                    'name' => __("service_pages.items.$key.name"),
                 ],
             ])->values()->all(),
         ];
@@ -190,13 +229,21 @@ final class JsonLd
             'inLanguage' => app()->getLocale(),
             'isPartOf' => ['@id' => url('/') . '#website'],
             'about' => ['@id' => url('/') . '#person'],
-            'mainEntity' => request()->routeIs('about') ? ['@id' => url('/') . '#person'] : null,
+            'mainEntity' => match (true) {
+                request()->routeIs('about') => ['@id' => url('/') . '#person'],
+                request()->routeIs('services.show') => ['@id' => $meta->canonical . '#service'],
+                request()->routeIs('projects.show') => ['@id' => $meta->canonical . '#project'],
+                request()->routeIs('projects.index') => ['@id' => $meta->canonical . '#projects'],
+                default => null,
+            },
             'primaryImageOfPage' => $meta->image,
+            // The price pages carry the day the price guide was last checked.
+            'dateModified' => request()->routeIs('services', 'services.show') ? config('pricing.reviewed') : null,
             'breadcrumb' => $hasTrail ? ['@id' => $meta->canonical . '#breadcrumb'] : null,
         ]);
     }
 
-    /** Home > section (> project). Nothing on the home page itself. */
+    /** Home > section (> project or service). Nothing on the home page itself. */
     private static function breadcrumbs(PageMeta $meta): ?array
     {
         if (request()->routeIs('home')) {
@@ -207,7 +254,7 @@ final class JsonLd
         $trail = [[__('nav.home'), route('home', ['locale' => $locale])]];
 
         $section = match (true) {
-            request()->routeIs('services') => [__('site.nav.services'), route('services', ['locale' => $locale])],
+            request()->routeIs('services', 'services.show') => [__('site.nav.services'), route('services', ['locale' => $locale])],
             request()->routeIs('projects.*') => [__('site.nav.work'), route('projects.index', ['locale' => $locale])],
             request()->routeIs('about') => [__('site.nav.about'), route('about', ['locale' => $locale])],
             request()->routeIs('contact') => [__('site.nav.contact'), route('contact', ['locale' => $locale])],
@@ -216,8 +263,8 @@ final class JsonLd
         if ($section) {
             $trail[] = $section;
         }
-        if (request()->routeIs('projects.show')) {
-            $trail[] = [$meta->title, $meta->canonical];
+        if (request()->routeIs('projects.show', 'services.show')) {
+            $trail[] = [$meta->name ?? $meta->title, $meta->canonical];
         }
 
         // A trail of one (a page outside the main sections) says nothing.
@@ -243,11 +290,12 @@ final class JsonLd
      *
      * @param array<int, array{q: string, a: string}> $items
      */
-    private static function faqPage(array $items, string $url): array
+    public static function faqPage(array $items, string $url): array
     {
         return [
             '@type' => 'FAQPage',
             '@id' => $url . '#faq',
+            'isPartOf' => ['@id' => $url . '#webpage'],
             'inLanguage' => app()->getLocale(),
             'mainEntity' => array_values(array_map(fn (array $qa): array => [
                 '@type' => 'Question',

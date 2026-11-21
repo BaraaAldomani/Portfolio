@@ -18,7 +18,7 @@
                             <span>«{{ __('site.offers.kind') }}»</span>
                             <span class="num" dir="ltr">{{ sprintf('%02d', $loop->iteration) }} / {{ sprintf('%02d', count($offers)) }}</span>
                         </p>
-                        <h2 class="uml__name uml__name--sm">{{ __("site.offers.items.$key.title") }}</h2>
+                        <h2 class="uml__name uml__name--sm"><a href="{{ service_url($key) }}">{{ __("site.offers.items.$key.title") }}</a></h2>
                         <p class="uml__line">{{ __("site.offers.items.$key.blurb") }}</p>
                     </header>
                     <dl class="uml__part uml__attrs uml__attrs--wide">
@@ -30,7 +30,8 @@
                             <li>{{ $item }}</li>
                         @endforeach
                     </ul>
-                    <footer class="uml__part uml__foot">
+                    <footer class="uml__part uml__foot flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
+                        <a href="{{ service_url($key) }}" class="ulink" aria-label="{{ __('service_pages.ui.details') }}: {{ __("site.offers.items.$key.title") }}">{{ __('service_pages.ui.details') }}</a>
                         <a href="{{ whatsapp_url(__('site.pages.services.ask_prefix') . ' ' . __("site.offers.items.$key.title")) }}" target="_blank" rel="noopener"
                            data-track="whatsapp" data-track-from="offer-{{ $key }}" class="ulink">{{ __('site.offers.ask') }}</a>
                     </footer>

@@ -10,19 +10,19 @@ return [
     ],
     'home' => [
         'title' => 'Freelance Software Engineer in Riyadh | Baraa Aldomani',
-        'description' => 'Freelance software engineer in Riyadh for founders and business owners. I build your website, platform or app from idea to launch, with a written scope and public starting prices. First call free.',
+        'description' => 'Freelance software engineer in Riyadh. I build your website, platform or app from idea to launch, with a written scope and public prices. First call free.',
     ],
     'services' => [
-        'title' => 'Software Engineering & Development Services | Baraa Aldomani, Riyadh',
-        'description' => 'Six kinds of project with public starting prices and clear timelines: websites, stores and booking platforms, management systems, mobile apps, API integrations and AI automation. From a freelance software engineer in Riyadh.',
+        'title' => 'Software Services & Prices in Riyadh | Baraa Aldomani',
+        'description' => 'Public starting prices and clear timelines for six kinds of project: websites, booking platforms, management systems, mobile apps, integrations and AI.',
     ],
     'projects' => [
-        'title' => 'Projects & Case Studies | Baraa Aldomani',
-        'description' => 'Real projects that are live today: a diwaniya booking platform, a finishing and renovation platform, and sites for independent professionals. Each with its story: challenge, solution, result.',
+        'title' => 'Work: Platforms and Websites I Have Built | Baraa Aldomani',
+        'description' => 'Real projects that are live today: a diwaniya booking platform, a renovation platform, and sites for independent professionals. Each with its story.',
     ],
     'about' => [
         'title' => 'About, Freelance Software Engineer | Baraa Aldomani',
-        'description' => 'Software engineer with 4+ years analyzing, designing, and building scalable solutions, working as a freelancer from Riyadh and serving clients across Saudi Arabia.',
+        'description' => 'Software engineer with 4+ years analyzing, designing and building scalable solutions. Freelancing from Riyadh with clients across Saudi Arabia.',
     ],
     'contact' => [
         'title' => 'Contact, Start Your Project | Baraa Aldomani',

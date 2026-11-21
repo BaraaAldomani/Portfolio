@@ -42,6 +42,15 @@
             <p class="mt-4 max-w-xs text-sm text-muted">{{ __('site.footer.tagline') }}</p>
         </div>
 
+        <nav aria-label="{{ __('service_pages.ui.footer') }}">
+            <p class="label">{{ __('service_pages.ui.footer') }}</p>
+            <ul class="mt-3 space-y-1.5">
+                @foreach (\App\Support\ServicePages::keys() as $service)
+                    <li><a href="{{ service_url($service) }}" class="nav__link">{{ __("site.offers.items.$service.title") }}</a></li>
+                @endforeach
+            </ul>
+        </nav>
+
         <nav aria-label="{{ __('site.footer.pages') }}">
             <p class="label">{{ __('site.footer.pages') }}</p>
             <ul class="mt-3 space-y-1.5">

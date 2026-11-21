@@ -687,6 +687,7 @@ html[lang='en'] { --hero-fs: min(10.2vw, 24svh); }
     .faq { border-top: 1px solid var(--line); }
     .faq summary { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; padding: clamp(1.2rem, 2vw, 1.9rem) 0; cursor: pointer; list-style: none; font-family: var(--font-display); font-weight: 600; font-size: clamp(1.1rem, 1.8vw, 1.6rem); line-height: 1.5; }
     .faq summary::-webkit-details-marker { display: none; }
+    .faq summary h3 { font: inherit; }
     .faq__x { position: relative; flex: none; inline-size: 1.1rem; block-size: 1.1rem; }
     .faq__x::before, .faq__x::after { content: ''; position: absolute; inset-block-start: 50%; inset-inline: 0; block-size: 1.5px; background: currentColor; transition: transform 0.5s var(--ease-out); }
     .faq__x::after { transform: rotate(90deg); }
@@ -718,7 +719,7 @@ html[lang='en'] { --hero-fs: min(10.2vw, 24svh); }
     [data-page='home'] .closing__spark { display: none; }
 
     .foot { display: grid; gap: 2rem; padding: 2.5rem var(--pad) 6rem; border-top: 1px solid var(--line); }
-    @media (min-width: 900px) { .foot { grid-template-columns: 1.4fr 1fr 1fr 1fr; padding-block-end: 2.5rem; } }
+    @media (min-width: 900px) { .foot { grid-template-columns: 1.3fr 1.2fr 0.9fr 1fr 0.9fr; padding-block-end: 2.5rem; } }
 
     /* ════════════════════════════════════════════════════════════════
        INNER PAGES
@@ -840,7 +841,12 @@ html[lang='en'] { --hero-fs: min(10.2vw, 24svh); }
     html.js .trace[data-reveal] { opacity: 1; transform: none; }
 
     .page-head { min-block-size: 62svh; }
+    /* A page whose title is a whole phrase (a service page) sets it smaller. */
+    .page-head--long .d-1 { max-inline-size: 20ch; font-size: clamp(2.2rem, 6vw, 6.25rem); text-wrap: balance; }
+    html[lang='en'] .page-head--long .d-1 { max-inline-size: 26ch; }
+    html[lang='ar'] .page-head--long .d-1 { line-height: 1.32; }
     .row__n { color: var(--accent); }
+    @media (min-width: 900px) { .row--2 { grid-template-columns: 3.5rem minmax(0, 1fr); } }
 
     /* Cards in a grid: services, and anything else described like a class. */
     .cards { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 21rem), 1fr)); align-items: stretch; }

@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
 Route::get('/llms.txt', [SitemapController::class, 'llms'])->name('llms');
+Route::get('/llms-full.txt', [SitemapController::class, 'llmsFull'])->name('llms.full');
 
 // Bare root → default locale (Arabic-first).
 Route::redirect('/', '/ar', 301);
@@ -33,6 +34,7 @@ Route::prefix('{locale}')
     ->group(function (): void {
         Route::get('/', HomeController::class)->name('home');
         Route::get('/services', ServicesController::class)->name('services');
+        Route::get('/services/{service}', [ServicesController::class, 'show'])->name('services.show');
         Route::get('/projects', [ProjectsController::class, 'index'])->name('projects.index');
         Route::get('/projects/{project}', [ProjectsController::class, 'show'])->name('projects.show');
         Route::get('/about', AboutController::class)->name('about');

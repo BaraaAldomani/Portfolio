@@ -6,6 +6,10 @@
  * project. Edit freely: the site and the estimator read only from here.
  */
 return [
+    // The day these prices were last checked. Shown on the service pages as
+    // "prices last updated", so change it whenever you review the numbers.
+    'reviewed' => '2026-11-21',
+
     // key => starting price, typical upper bound, and duration in weeks.
     'offers' => [
         'site' => ['from' => 3500, 'to' => 9000, 'weeks' => [1, 2]],

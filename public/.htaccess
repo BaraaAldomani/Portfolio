@@ -5,6 +5,21 @@
 
     RewriteEngine On
 
+    # On the server the project sits in the web root and a rule there passes
+    # every request into this folder, so the path seen here may start with
+    # /public. No address given to a visitor may keep that prefix: the same
+    # page would then exist twice, once under /public and once without.
+
+    # One host only. www answers with a redirect, so search engines never see
+    # the site twice under two names.
+    RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+    RewriteCond %1::%{REQUEST_URI} ^([^:]+)::(?:/public)?(/.*)$
+    RewriteRule ^ https://%1%2 [L,R=301]
+
+    # A request that names /public itself goes to the same path without it.
+    RewriteCond %{THE_REQUEST} ^[A-Z]+\s/public(?:/([^\s?]*))?[\s?] [NC]
+    RewriteRule ^ /%1 [L,R=301]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
@@ -15,7 +30,7 @@
 
     # Redirect Trailing Slashes If Not A Folder...
     RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteCond %{REQUEST_URI} ^(?:/public)?(/.+)/$
     RewriteRule ^ %1 [L,R=301]
 
     # Send Requests To Front Controller...
@@ -31,4 +46,17 @@
 </IfModule>
 <IfModule mod_headers.c>
     Header set Cache-Control "public, max-age=31536000, immutable" env=HASHED_ASSET
+</IfModule>
+
+# Transport and security headers. The site is HTTPS only (http already
+# redirects), so browsers are told to keep it that way; it is never meant to be
+# framed by another site, and it asks for no device features.
+<IfModule mod_headers.c>
+    Header always set Strict-Transport-Security "max-age=31536000"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+    Header always unset X-Powered-By
+    Header unset X-Powered-By
 </IfModule>

@@ -1,14 +1,18 @@
 {{-- ═════════ Project calculator ═════════
      Reads config/pricing.php (single source of prices). Works as plain form
-     controls; services.js adds the live total and the WhatsApp hand-off. --}}
+     controls; services.js adds the live total and the WhatsApp hand-off.
+     A service page includes it with `preset` set to its own offer. --}}
 @php
     $pricing = config('pricing');
+    $preset = isset($preset, $pricing['offers'][$preset]) ? $preset : array_key_first($pricing['offers']);
+    $start = $pricing['offers'][$preset];
     $estimatorConfig = [
         'offers' => $pricing['offers'],
         'extras' => $pricing['extras'],
         'pace' => $pricing['pace'],
         'spread' => $pricing['spread'],
         'whatsapp' => whatsapp_url(''),
+        'locale' => app()->getLocale(),
         'labels' => [
             'offers' => collect($pricing['offers'])->keys()->mapWithKeys(fn ($k) => [$k => __("site.offers.items.$k.title")]),
             'extras' => __('site.estimate.extras'),
@@ -29,7 +33,7 @@
     <header class="mb-14 grid gap-6 lg:mb-20 lg:grid-cols-12">
         <p class="label lg:col-span-3" data-reveal>{{ __('site.estimate.tag') }}</p>
         <div class="lg:col-span-9">
-            <h2 class="d-2" data-words>{{ accent(__('site.estimate.title')) }}</h2>
+            <h2 class="d-2" data-words>{{ accent($title ?? __('site.estimate.title')) }}</h2>
             <p class="lede mt-6 max-w-2xl text-muted" data-reveal>{{ __('site.estimate.lead') }}</p>
         </div>
     </header>
@@ -41,7 +45,7 @@
                 <div class="mt-5 flex flex-wrap gap-3">
                     @foreach ($pricing['offers'] as $key => $price)
                         <label class="opt">
-                            <input type="radio" name="type" value="{{ $key }}" @checked($loop->first)>
+                            <input type="radio" name="type" value="{{ $key }}" @checked($key === $preset)>
                             <span>{{ __("site.offers.items.$key.title") }}</span>
                         </label>
                     @endforeach
@@ -77,14 +81,14 @@
             <div class="estimate-card framed" data-reveal>
                 <p class="label">{{ __('site.estimate.result') }}</p>
                 <p class="mt-4 leading-none" aria-live="polite">
-                    <span class="num estimate-num" data-est="low">{{ number_format(collect($pricing['offers'])->first()['from']) }}</span>
+                    <span class="num estimate-num" data-est="low">{{ number_format($start['from']) }}</span>
                     <span class="label mx-2">{{ __('site.estimate.to') }}</span>
-                    <span class="num estimate-num" data-est="high">{{ number_format(round(collect($pricing['offers'])->first()['from'] * $pricing['spread'] / 500) * 500) }}</span>
+                    <span class="num estimate-num" data-est="high">{{ number_format(round($start['from'] * $pricing['spread'] / 500) * 500) }}</span>
                     <span class="label ms-1">{{ __('site.offers.currency') }}</span>
                 </p>
 
                 <p class="label mt-10">{{ __('site.estimate.time') }}</p>
-                <p class="d-3 mt-2"><span data-est="weeks">{{ collect($pricing['offers'])->first()['weeks'][0] }} {{ __('site.estimate.to') }} {{ collect($pricing['offers'])->first()['weeks'][1] }}</span> {{ __('site.estimate.weeks') }}</p>
+                <p class="d-3 mt-2" data-est="weeks">{{ weeks_span($start['weeks'][0], $start['weeks'][1]) }}</p>
 
                 <button type="submit" class="cta cta--wa mt-10 w-full" data-track="whatsapp" data-track-from="estimator">
                     <x-icon.whatsapp class="h-5 w-5" />{{ __('site.estimate.send') }}

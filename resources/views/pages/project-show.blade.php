@@ -46,7 +46,7 @@
         {{-- ═════════ Picture (or typography for confidential work) ═════════ --}}
         <div class="wrap">
             @if ($project->hasCover())
-                <x-window :src="$project->coverImage()" :small="$project->coverSmall()" sizes="100vw" :alt="$project->localized('title')" :name="$project->name()" data-reveal />
+                <x-window :src="$project->coverImage()" :small="$project->coverSmall()" sizes="100vw" :alt="$project->localized('title')" :name="$project->name()" :eager="true" data-reveal />
             @else
                 <div class="typo-panel framed" data-reveal>
                     <p class="typo-panel__big">{{ $project->localized('stat') }}</p>
@@ -73,6 +73,20 @@
                 @endforeach
             </ul>
         </div>
+
+        {{-- ═════════ Want one like it? The service this is an example of ═════════ --}}
+        @php($service = \App\Support\ServicePages::keyForProject($project))
+        @if ($service)
+            <div class="wrap pb-20 lg:pb-28">
+                <a href="{{ service_url($service) }}" class="uml framed block max-w-xl" data-reveal>
+                    <span class="uml__head block">
+                        <span class="uml__stereo"><span>{{ __('site.pages.project.similar') }}</span></span>
+                        <span class="uml__name uml__name--sm block">{{ __("site.offers.items.$service.title") }}</span>
+                        <span class="uml__line block">{{ __('site.offers.from') }} <span class="num">{{ number_format(config("pricing.offers.$service.from")) }}</span> {{ __('site.offers.currency') }} · {{ __("site.offers.items.$service.time") }}</span>
+                    </span>
+                </a>
+            </div>
+        @endif
 
         {{-- ═════════ Next ═════════ --}}
         @if ($next)

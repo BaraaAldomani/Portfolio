@@ -9,7 +9,7 @@
 @foreach ($url['alternates'] as $locale => $href)
         <xhtml:link rel="alternate" hreflang="{{ $locale }}" href="{{ $href }}"/>
 @endforeach
-        <xhtml:link rel="alternate" hreflang="x-default" href="{{ $url['alternates']['ar'] }}"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="{{ $url['alternates'][config('app.supported_locales')[0]] }}"/>
     </url>
 @endforeach
 </urlset>

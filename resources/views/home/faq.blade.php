@@ -11,7 +11,7 @@
         <div class="rule lg:col-span-7" style="border-top:0">
             @foreach (faq_items() as $item)
                 <details class="faq" data-reveal @if ($loop->first) open @endif>
-                    <summary>{{ $item['q'] }}<span class="faq__x" aria-hidden="true"></span></summary>
+                    <summary><h3>{{ $item['q'] }}</h3><span class="faq__x" aria-hidden="true"></span></summary>
                     <p>{{ $item['a'] }}</p>
                 </details>
             @endforeach

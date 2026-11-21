@@ -93,6 +93,27 @@ In `app.css`, under "THE KIT":
 - A project cover `name.webp` may have a lighter sibling `name-s.webp` (1600px). `Project::coverSmall()` finds it; the board and `<x-window>` use it on small screens. Dashboard uploads simply fall back to the cover.
 - The board asks for the hero's pictures at once and for the stations' only after the page has loaded.
 
+## Service pages
+
+One page per offer in `config/pricing.php`, at `/{locale}/services/{slug}` (`pages/service-show.blade.php`, `App\Support\ServicePages`).
+
+- Words: `lang/{ar,en}/service_pages.php`. Never type a price or a duration there: `:from` and `:time` are filled from the price guide. Every answer is a promise, so nothing goes in that the owner has not confirmed.
+- Order of the page: head (the phrase people search for), the short answer beside the service's class card, who it is for and who it is not, what is handed over, real work of that kind, the calculator preset to the service, the four steps, its own questions, the other five.
+- Proof: `config/service_pages.php` lists projects per service. A service with none shows the method section instead, never an empty heading.
+- Structured data: a `Service` node with the starting price, a three-step trail, and FAQPage for the page's own questions only.
+- Long titles use `.page-head--long`; two-column lists use `.row--2`.
+- Each service has its own headings (`fit_title`, `gets_title`, `proof_title`, `estimate_title`, `faq_title`) that name the service, several of them as questions. `proof_lead` says exactly what the projects shown are: never imply work that is not on the page.
+- The line under the short answer names who does the work and when the prices were last checked (`pricing.reviewed`, also the `dateModified` of the price pages and their `lastmod` in the sitemap). Change that date when the prices are reviewed.
+- Durations in Arabic are written as people say them (`weeks_span()` in PHP, the same rule in `pages/services.js`): never a number followed by one fixed word for "weeks".
+
+## Server and crawling
+
+- On the server the project sits in the web root and a rule there passes requests into `public/`, so inside `public/.htaccess` a path may start with `/public`. No redirect may keep that prefix (the site would exist twice). The rules were checked on a local Apache laid out the same way; do that again before changing them.
+- One address: `PRIMARY_URL` in the deploy workflow. `PrimaryHost` middleware redirects every other host that serves the folder and makes every generated link use it. Moving to a new domain is a change of that one line (steps in `deploy/CICD.md`). Never hardcode the site's address anywhere; share pictures, which have it drawn in, are chosen per host by `share_image()`.
+- One host (www redirects), one `x-default` per language pair (the first of `app.supported_locales`), and in `robots.txt` every group that names a crawler repeats the dashboard rule, because a crawler follows only its own group.
+- A missing page is `errors/404.blade.php`: it reads the language from the address, since no route (and so no locale middleware) ran.
+- Questions are `h3` inside `summary`. The share picture carries a headline, so English pages use `og-en.png`.
+
 ## Checking the board
 
 `scratchpad/tools/film.mjs` drives `window.__journey.seek(u, time)` in headless

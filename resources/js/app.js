@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     initRetheme();
     initMagnetic(env);
 
-    if (document.body.dataset.page === 'services') {
+    if (document.querySelector('[data-estimator]')) {
         const { default: services } = await import('./pages/services');
         services(env);
     }

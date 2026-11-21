@@ -10,6 +10,7 @@ final readonly class PageMeta
      * @param array<string, string> $alternates locale => absolute URL, used for hreflang + language switcher
      * @param string|null $image absolute URL of the picture to show when the page is shared
      * @param array<int, array<string, mixed>> $schema extra schema.org nodes this page adds to the site graph
+     * @param string|null $name what the page is called in a trail (the title carries the brand, this does not)
      */
     public function __construct(
         public string $title,
@@ -18,6 +19,7 @@ final readonly class PageMeta
         public string $canonical,
         public ?string $image = null,
         public array $schema = [],
+        public ?string $name = null,
     ) {
     }
 
@@ -47,11 +49,11 @@ final readonly class PageMeta
      * @param array<string, array<string, string>> $paramsByLocale
      * @param array<int, array<string, mixed>> $schema
      */
-    public static function forContent(string $title, string $description, array $paramsByLocale, array $schema = [], ?string $image = null): self
+    public static function forContent(string $title, string $description, array $paramsByLocale, array $schema = [], ?string $image = null, ?string $name = null): self
     {
         $alternates = self::alternatesFor(Route::currentRouteName(), $paramsByLocale);
 
-        return new self($title, $description, $alternates, $alternates[app()->getLocale()], $image, $schema);
+        return new self($title, $description, $alternates, $alternates[app()->getLocale()], $image, $schema, $name);
     }
 
     /**

@@ -16,6 +16,9 @@
 #   TELEGRAM_BOT_TOKEN   from @BotFather
 #   TELEGRAM_CHAT_ID     your chat id (see config/services.php)
 #   LEAD_NOTIFY_EMAIL    inbox for email alerts (needs MAIL_* on the server)
+#
+# The site's address is NOT a secret: it is PRIMARY_URL below. To move the site
+# to another domain see "Moving to another domain" in deploy/CICD.md.
 # ─────────────────────────────────────────────────────────────────────────────
 name: Deploy to Hostinger
 
@@ -32,6 +35,17 @@ concurrency:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    env:
+      # The one address the site answers on. Every other host this folder is
+      # served under (www, an older domain) is redirected to it, and every
+      # link the site writes uses it (app/Http/Middleware/PrimaryHost.php).
+      # Change it only after the new address already serves this folder: the
+      # deploy refuses otherwise.
+      PRIMARY_URL: https://baraa.rakeez-llc.com
+      # Other domains on the same hosting account that serve this same folder
+      # (space separated). scripts/link-alias.sh links each one's public_html
+      # to DEPLOY_PATH.
+      ALIAS_DOMAINS: baraadom.com
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -81,6 +95,20 @@ jobs:
             -o StrictHostKeyChecking=accept-new \
             "$SSH_USER@$SSH_HOST" 'echo SSH_OK; whoami; pwd'
 
+          # Changing PRIMARY_URL sends every visitor to the new address. Refuse
+          # unless that address already answers with this site (its robots.txt
+          # names the sitemap; a host's placeholder page does not), so a typo or
+          # a domain that is not linked yet can never take the site down.
+          current="$(ssh -p "$SSH_PORT" -i ~/.ssh/deploy_key "$SSH_USER@$SSH_HOST" \
+            "grep -E '^PRIMARY_URL=' '$DEPLOY_PATH/.env' 2>/dev/null | head -n 1 | cut -d= -f2-" | tr -d "'\r" || true)"
+          if [ -n "$current" ] && [ "$current" != "$PRIMARY_URL" ]; then
+            echo "Primary address changes: $current -> $PRIMARY_URL"
+            if ! curl -fsSL -m 30 -A 'Mozilla/5.0 (deploy check)' "$PRIMARY_URL/robots.txt" | grep -q '^Sitemap:'; then
+              echo "::error::$PRIMARY_URL does not serve this site yet. Link the domain (ALIAS_DOMAINS), deploy, check it, then change PRIMARY_URL."
+              exit 1
+            fi
+          fi
+
           # Sync the app. No --delete: server-side .env and uploaded images are safe.
           rsync -az --no-perms --no-owner --no-group \
             --exclude='.git/' \
@@ -99,8 +127,10 @@ jobs:
           # Secrets that live only in GitHub (never in git) → server .env.
           # Piped over stdin so they never show up on a command line; empty
           # secrets are skipped, so nothing set by hand on the server is wiped.
-          printf 'TELEGRAM_BOT_TOKEN=%s\nTELEGRAM_CHAT_ID=%s\nLEAD_NOTIFY_EMAIL=%s\n' \
-            "$TELEGRAM_BOT_TOKEN" "$TELEGRAM_CHAT_ID" "$LEAD_NOTIFY_EMAIL" \
+          # The site's address goes the same way: APP_URL (uploaded files, mail)
+          # and PRIMARY_URL (the one host the site answers on) always match.
+          printf 'TELEGRAM_BOT_TOKEN=%s\nTELEGRAM_CHAT_ID=%s\nLEAD_NOTIFY_EMAIL=%s\nAPP_URL=%s\nPRIMARY_URL=%s\n' \
+            "$TELEGRAM_BOT_TOKEN" "$TELEGRAM_CHAT_ID" "$LEAD_NOTIFY_EMAIL" "$PRIMARY_URL" "$PRIMARY_URL" \
             | ssh -p "$SSH_PORT" -i ~/.ssh/deploy_key "$SSH_USER@$SSH_HOST" \
               "cd '$DEPLOY_PATH' && $PHP_BIN scripts/set-env.php"
 
@@ -131,3 +161,13 @@ jobs:
             $PHP_BIN artisan config:cache; \
             $PHP_BIN artisan route:cache; \
             $PHP_BIN artisan view:cache"
+
+          # Other domains that serve this same folder (see ALIAS_DOMAINS above).
+          ssh -p "$SSH_PORT" -i ~/.ssh/deploy_key "$SSH_USER@$SSH_HOST" \
+            "sh '$DEPLOY_PATH/scripts/link-alias.sh' '$DEPLOY_PATH' $ALIAS_DOMAINS"
+
+          # What each address answers now (informative: never fails the deploy).
+          for host in "$PRIMARY_URL" $(printf 'https://%s ' $ALIAS_DOMAINS); do
+            printf '%s/ar -> ' "$host"
+            curl -s -o /dev/null -m 30 -A 'Mozilla/5.0 (deploy check)' -w '%{http_code} %{redirect_url}\n' "$host/ar" || echo 'no answer'
+          done

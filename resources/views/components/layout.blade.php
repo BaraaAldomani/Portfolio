@@ -1,7 +1,9 @@
 @props(['meta', 'page' => 'page', 'noindex' => false])
 @php($locale = app()->getLocale())
 @php($jsonLd = \App\Support\Seo\JsonLd::forPage($meta))
-@php($shareImage = $meta->image ?: asset('images/og.png'))
+{{-- The share picture carries a headline and the site's address, so each
+     language and each address has its own (share_image()). --}}
+@php($shareImage = $meta->image ?: share_image($locale))
 @php($ogLocales = ['ar' => 'ar_SA', 'en' => 'en_US'])
 <!DOCTYPE html>
 <html lang="{{ $locale }}" dir="{{ $locale === 'ar' ? 'rtl' : 'ltr' }}">
@@ -15,7 +17,9 @@
     @foreach ($meta->alternates as $altLocale => $url)
         <link rel="alternate" hreflang="{{ $altLocale }}" href="{{ $url }}">
     @endforeach
-    <link rel="alternate" hreflang="x-default" href="{{ $meta->alternates[config('app.locale')] ?? $meta->canonical }}">
+    {{-- The same address on both languages of a page: the site's first language.
+         (config('app.locale') is the language being read, so it cannot be used.) --}}
+    <link rel="alternate" hreflang="x-default" href="{{ $meta->alternates[config('app.supported_locales')[0]] ?? $meta->canonical }}">
     @if ($noindex)
         <meta name="robots" content="noindex, follow">
     @endif
@@ -43,9 +47,9 @@
     <meta name="twitter:description" content="{{ $meta->description }}">
     <meta name="twitter:image" content="{{ $shareImage }}">
 
+    <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="48x48">
     <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
-    <link rel="icon" href="{{ asset('favicon.svg') }}" sizes="any">
-    <link rel="apple-touch-icon" href="{{ asset('favicon.svg') }}">
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
 
     <x-tracking-head />
 
@@ -73,6 +77,11 @@
     <meta name="theme-color" content="#0f172a">
 
     <script type="application/ld+json">{!! json_encode($jsonLd, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}</script>
+
+    {{-- The page a visitor is about to open is fetched while they aim at its
+         link (browsers that do not know speculation rules ignore this). Only
+         the site's own pages, never the dashboard or a form's action. --}}
+    <script type="speculationrules">{"prefetch":[{"where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":"/admin*"}},{"not":{"selector_matches":"[target=_blank]"}}]},"eagerness":"moderate"}]}</script>
 </head>
 <body data-page="{{ $page }}" class="font-sans text-ink antialiased">
     <div class="loader" aria-hidden="true">

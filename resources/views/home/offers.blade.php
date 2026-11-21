@@ -8,7 +8,7 @@
 
     <div class="rows">
         @foreach ($offers as $key => $price)
-            <a href="{{ route('services') }}#{{ $key }}" class="row" data-reveal>
+            <a href="{{ service_url($key) }}" class="row" data-reveal>
                 <span class="row__n">{{ sprintf('%02d', $loop->iteration) }}</span>
                 <span>
                     <span class="row__title block">{{ __("site.offers.items.$key.title") }}</span>

@@ -2,30 +2,21 @@ User-agent: *
 Allow: /
 Disallow: /admin
 
-# AI assistants & answer engines — explicitly welcomed so they can crawl,
-# cite, and recommend this site in their answers.
+# AI assistants and answer engines are welcome to crawl, cite and recommend
+# this site. A crawler follows only the group that names it, so the group
+# repeats the one rule above instead of leaving the dashboard open to them.
 User-agent: OAI-SearchBot
-Allow: /
-
 User-agent: ChatGPT-User
-Allow: /
-
 User-agent: GPTBot
-Allow: /
-
 User-agent: ClaudeBot
-Allow: /
-
-User-agent: Claude-Web
-Allow: /
-
+User-agent: Claude-SearchBot
+User-agent: Claude-User
 User-agent: PerplexityBot
-Allow: /
-
+User-agent: Perplexity-User
 User-agent: Google-Extended
-Allow: /
-
+User-agent: Applebot-Extended
 User-agent: Bingbot
 Allow: /
+Disallow: /admin
 
 Sitemap: {{ $sitemap }}

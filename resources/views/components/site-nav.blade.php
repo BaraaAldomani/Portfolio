@@ -1,7 +1,7 @@
 @props(['alternates'])
 @php($links = [
     ['route' => 'projects.index', 'active' => 'projects.*', 'label' => __('site.nav.work')],
-    ['route' => 'services', 'active' => 'services', 'label' => __('site.nav.services')],
+    ['route' => 'services', 'active' => 'services*', 'label' => __('site.nav.services')],
     ['route' => 'about', 'active' => 'about', 'label' => __('site.nav.about')],
 ])
 @php($otherLocale = app()->getLocale() === 'ar' ? 'en' : 'ar')

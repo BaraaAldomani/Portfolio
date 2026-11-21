@@ -156,3 +156,35 @@ Notes:
   happens, switch the transfer to SFTP (ask and I'll adjust the workflow).
 - **500 after deploy** — almost always a stale cache or perms. Over SSH:
   `php artisan optimize:clear` and `chmod -R 775 storage bootstrap/cache`.
+
+## Moving to another domain
+
+The site answers on one address, `PRIMARY_URL` in `.github/workflows/deploy.yml`.
+Each deploy writes it to the server `.env` as `PRIMARY_URL` and `APP_URL`, and
+`app/Http/Middleware/PrimaryHost.php` does the rest: every link the site writes
+uses that address, and a request on any other host that serves this folder
+(www, the older domain) gets a permanent redirect to the same page.
+
+Moving is two deploys, in this order:
+
+1. **Make the new domain serve this folder.** Add the domain to the same
+   hosting account (hPanel creates `~/domains/<domain>/public_html` with a
+   placeholder page) and list it in `ALIAS_DOMAINS` in the workflow. The deploy
+   runs `scripts/link-alias.sh`, which sets that placeholder folder aside and
+   links it to `DEPLOY_PATH`. Check: `https://<new-domain>/ar` now redirects to
+   the current address. That proves the new domain reaches this install.
+2. **Switch.** Change `PRIMARY_URL` to the new domain and push. The deploy
+   first asks the new address for `robots.txt` and refuses to continue if this
+   site does not answer there, so a typo or an unlinked domain cannot take the
+   site down. After it, the old address redirects every page to the new one.
+
+Then, outside the code: add the new domain in Google Search Console and Bing
+Webmaster Tools, submit `sitemap.xml` there, use Search Console's "Change of
+address" on the old property, and update the links that point at the old
+address (LinkedIn, GitLab, client-site credits).
+
+Share pictures have the address drawn into them: add a pair for the new host
+under `share_images` in `config/portfolio.php`.
+
+To undo the link: `rm ~/domains/<domain>/public_html && mv ~/domains/<domain>/public_html.before-alias ~/domains/<domain>/public_html`.
+To undo the switch: set `PRIMARY_URL` back and push.

@@ -6,6 +6,24 @@
  * these values anywhere else.
  */
 return [
+    /*
+     * The one address the site answers on, e.g. https://baraadom.com. When set,
+     * every other host this folder is served under (www, an older domain)
+     * redirects to it and every generated link uses it. The deploy writes it
+     * into the server .env from PRIMARY_URL in the workflow file; it stays
+     * empty for local work and tests.
+     */
+    'primary_url' => env('PRIMARY_URL'),
+
+    /*
+     * Share pictures have the site's address drawn into them, so each address
+     * has its own pair. A host that is not listed uses images/og.png and
+     * images/og-en.png.
+     */
+    'share_images' => [
+        'baraadom.com' => ['ar' => 'images/og-baraadom.png', 'en' => 'images/og-baraadom-en.png'],
+    ],
+
     'email' => 'baraa.aldomani@gmail.com',
 
     // Inbox that receives an alert for every contact-form message. Leave
@@ -17,7 +35,7 @@ return [
     'whatsapp' => '966553785576',
     'phone_display' => '+966 55 378 5576',
 
-    'linkedin' => 'https://www.linkedin.com/in/baraa-aldomani/',
+    'linkedin' => 'https://www.linkedin.com/in/baraaaldomani/',
     'gitlab' => 'https://gitlab.com/BaraaAldomani',
 
     // Extra profiles — fill in from the dashboard (Contact & social). Left blank

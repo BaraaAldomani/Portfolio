@@ -57,7 +57,7 @@
             <div class="lg:col-span-7">
                 @foreach ((array) __('seo.faq') as $item)
                     <details class="faq" data-reveal @if ($loop->first) open @endif>
-                        <summary>{{ $item['q'] }}<span class="faq__x" aria-hidden="true"></span></summary>
+                        <summary><h3>{{ $item['q'] }}</h3><span class="faq__x" aria-hidden="true"></span></summary>
                         <p>{{ $item['a'] }}</p>
                     </details>
                 @endforeach

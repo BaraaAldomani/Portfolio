@@ -123,3 +123,60 @@ if (! function_exists('faq_items')) {
         );
     }
 }
+
+if (! function_exists('service_url')) {
+    /**
+     * The page of one service (an offer key from config/pricing.php), in the
+     * current locale unless another is given.
+     */
+    function service_url(string $key, ?string $locale = null): string
+    {
+        return \App\Support\ServicePages::url($key, $locale);
+    }
+}
+
+if (! function_exists('weeks_span')) {
+    /**
+     * A span of weeks the way each language says it. Arabic counts differently
+     * for one, two, three to ten and eleven up, so "1 to 2" cannot simply be
+     * followed by one word for "weeks".
+     */
+    function weeks_span(int|float $min, int|float $max, ?string $locale = null): string
+    {
+        [$min, $max] = [(int) round($min), (int) round($max)];
+
+        if (($locale ?? app()->getLocale()) !== 'ar') {
+            return $min === $max ? $min . ' ' . ($min === 1 ? 'week' : 'weeks') : "{$min} to {$max} weeks";
+        }
+
+        $unit = fn (int $n): string => match (true) {
+            $n === 1 => 'أسبوع',
+            $n === 2 => 'أسبوعين',
+            $n <= 10 => "{$n} أسابيع",
+            default => "{$n} أسبوعاً",
+        };
+
+        if ($min === $max) {
+            return $unit($min);
+        }
+
+        return 'من ' . ($min <= 2 ? $unit($min) : (string) $min) . ' إلى ' . $unit($max);
+    }
+}
+
+if (! function_exists('share_image')) {
+    /**
+     * The picture shown when a page without its own is shared. It has the
+     * site's address drawn into it, so it follows the address the site is
+     * served on, and its headline follows the language.
+     */
+    function share_image(?string $locale = null): string
+    {
+        $locale ??= app()->getLocale();
+        $host = parse_url((string) (config('portfolio.primary_url') ?: url('/')), PHP_URL_HOST);
+        // Not dot notation: a host name has dots of its own.
+        $own = ((array) config('portfolio.share_images'))[$host][$locale] ?? null;
+
+        return asset($own ?: ($locale === 'en' ? 'images/og-en.png' : 'images/og.png'));
+    }
+}

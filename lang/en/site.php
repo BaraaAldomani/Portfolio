@@ -62,7 +62,7 @@ return [
         'includes' => 'Includes',
         'ask' => 'Ask about this',
         'all' => 'All services and details',
-        'note' => 'Prices are in Saudi riyals and approximate. The final quote is written and clear before we start.',
+        'note' => 'Prices are in Saudi riyals and are starting points. The final quote is written and fixed before we start.',
         'items' => [
             'site' => [
                 'title' => 'A professional website',
@@ -267,6 +267,10 @@ return [
             'mark' => 'Hello',
             'or' => 'Or write to me here',
             'fastest' => 'Fastest',
+        ],
+        'missing' => [
+            'title' => 'This page does not exist.',
+            'lead' => 'The link may have changed or been mistyped. Every page is in the menu, and the services and work are right here.',
         ],
         'blog' => [
             'title' => 'The blog is being written.',

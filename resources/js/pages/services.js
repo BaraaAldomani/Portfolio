@@ -11,6 +11,14 @@ export default function services({ gsap, reduced }) {
     const out = Object.fromEntries(['low', 'high', 'weeks'].map((k) => [k, form.querySelector(`[data-est="${k}"]`)]));
     const fmt = new Intl.NumberFormat('en-US');
     const round = (n, step = 500) => Math.round(n / step) * step;
+
+    // A span of weeks as each language says it (the same rule as weeks_span()
+    // in PHP): Arabic counts one, two, three to ten and eleven up differently.
+    const span = (a, b) => {
+        if (cfg.locale !== 'ar') return a === b ? `${a} ${cfg.labels.weeks}` : `${a} ${cfg.labels.to} ${b} ${cfg.labels.weeks}`;
+        const unit = (n) => (n === 1 ? 'أسبوع' : n === 2 ? 'أسبوعين' : n <= 10 ? `${n} أسابيع` : `${n} أسبوعاً`);
+        return a === b ? unit(a) : `من ${a <= 2 ? unit(a) : a} إلى ${unit(b)}`;
+    };
     const shown = { low: 0, high: 0 };
     let current = null;
 
@@ -31,7 +39,7 @@ export default function services({ gsap, reduced }) {
     const render = (first = false) => {
         const choice = read();
         current = { choice, ...compute(choice) };
-        out.weeks.textContent = `${current.weeks[0]} ${cfg.labels.to} ${current.weeks[1]}`;
+        out.weeks.textContent = span(current.weeks[0], current.weeks[1]);
 
         if (first || reduced) {
             shown.low = current.low;
@@ -63,7 +71,7 @@ export default function services({ gsap, reduced }) {
             `${L.type}: ${L.offers[choice.type]}`,
             `${L.extrasLabel}: ${extras}`,
             `${L.paceLabel}: ${L.pace[choice.pace]}`,
-            `${L.range}: ${fmt.format(low)} ${L.to} ${fmt.format(high)} ${L.currency} (${weeks[0]} ${L.to} ${weeks[1]} ${L.weeks})`,
+            `${L.range}: ${fmt.format(low)} ${L.to} ${fmt.format(high)} ${L.currency} (${span(weeks[0], weeks[1])})`,
         ].join('\n');
         window.open(`${cfg.whatsapp}?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
     });
