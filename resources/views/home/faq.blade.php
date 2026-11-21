@@ -9,7 +9,7 @@
         </header>
 
         <div class="rule lg:col-span-7" style="border-top:0">
-            @foreach ((array) __('site.faq.items') as $item)
+            @foreach (faq_items() as $item)
                 <details class="faq" data-reveal @if ($loop->first) open @endif>
                     <summary>{{ $item['q'] }}<span class="faq__x" aria-hidden="true"></span></summary>
                     <p>{{ $item['a'] }}</p>

@@ -50,6 +50,21 @@
 
     @include('home.method')
 
+    {{-- ═════════ In short: the questions people (and assistants) ask about him ═════════ --}}
+    <section class="sec !pt-0">
+        <div class="grid gap-x-8 gap-y-10 lg:grid-cols-12">
+            <h2 class="d-2 lg:col-span-5" data-words>{{ __('site.pages.about.short') }}</h2>
+            <div class="lg:col-span-7">
+                @foreach ((array) __('seo.faq') as $item)
+                    <details class="faq" data-reveal @if ($loop->first) open @endif>
+                        <summary>{{ $item['q'] }}<span class="faq__x" aria-hidden="true"></span></summary>
+                        <p>{{ $item['a'] }}</p>
+                    </details>
+                @endforeach
+            </div>
+        </div>
+    </section>
+
     {{-- ═════════ Capabilities + education ═════════ --}}
     <section class="sec !pt-0">
         <div class="grid gap-x-10 gap-y-12 lg:grid-cols-12">

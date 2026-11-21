@@ -25,14 +25,16 @@
         'say' => $idea['say'],
         'steps' => $idea['steps'],
         'name' => $byScene[$idea['scene']]->name(),
-        'image' => $byScene[$idea['scene']]->coverImage(),
+        'image' => $byScene[$idea['scene']]->coverSmall(),
     ])->values(),
     'plots' => $stations->map(fn ($p) => [
         'scene' => $p->scene,
         'name' => $p->name(),
         'image' => $p->hasCover() ? $p->coverImage() : null,
+        'small' => $p->hasCover() ? $p->coverSmall() : null,
         'phone' => $p->mobileImage(),
         'plan' => $p->scene === 'shattib' ? asset('images/projects/shattib-plan.webp') : null,
+        'planSmall' => $p->scene === 'shattib' ? asset('images/projects/shattib-plan-s.webp') : null,
     ])->values(),
 ])
 
@@ -79,11 +81,19 @@
     <section class="j-wake j-wake--pinned" data-j data-j-pin>
         <div class="j-wake__pin">
             <p class="statement">{{ __('site.b.a') }}</p>
-            <ul class="sr-only">
-                @foreach ((array) __('site.b.questions') as $question)
-                    <li>{{ $question }}</li>
-                @endforeach
-            </ul>
+            {{-- The roadmap the canvas draws, as text: each question with the step that answers it. --}}
+            <div class="sr-only">
+                <h2>{{ __('site.process.tag') }}</h2>
+                <ol>
+                    @foreach ((array) __('site.process.steps') as $i => $step)
+                        <li>
+                            <strong>{{ $step['title'] }}</strong>
+                            @if ($question = __('site.b.questions')[$i] ?? null) ({{ $question }}) @endif
+                            {{ $step['text'] }}
+                        </li>
+                    @endforeach
+                </ol>
+            </div>
             <p class="statement">{{ __('site.b.b') }}</p>
         </div>
     </section>

@@ -61,6 +61,19 @@ final class Project extends Model
         return image_url($this->image_path);
     }
 
+    /**
+     * A lighter copy of the cover (1600px wide) for small screens and small
+     * placements: "name-s.webp" beside "name.webp". Covers uploaded from the
+     * dashboard have no such copy, so they fall back to the cover itself.
+     */
+    public function coverSmall(): string
+    {
+        $path = (string) $this->image_path;
+        $small = preg_replace('/\.(\w+)$/', '-s.$1', $path);
+
+        return $small !== $path && is_file(public_path($small)) ? asset($small) : $this->coverImage();
+    }
+
     public function mobileImage(): ?string
     {
         return $this->mobile_image_path ? image_url($this->mobile_image_path) : null;

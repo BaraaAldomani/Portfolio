@@ -46,7 +46,7 @@
         {{-- ═════════ Picture (or typography for confidential work) ═════════ --}}
         <div class="wrap">
             @if ($project->hasCover())
-                <x-window :src="$project->coverImage()" :alt="$project->localized('title')" :name="$project->name()" data-reveal />
+                <x-window :src="$project->coverImage()" :small="$project->coverSmall()" sizes="100vw" :alt="$project->localized('title')" :name="$project->name()" data-reveal />
             @else
                 <div class="typo-panel framed" data-reveal>
                     <p class="typo-panel__big">{{ $project->localized('stat') }}</p>

@@ -10,15 +10,15 @@ return [
     ],
     'home' => [
         'title' => 'Freelance Software Engineer in Riyadh | Baraa Aldomani',
-        'description' => 'Freelance software developer in Riyadh, Saudi Arabia. I build web & mobile apps, management systems, professional websites, and APIs for clients across Saudi Arabia. Turn your idea into a working product, first consultation free.',
+        'description' => 'Freelance software engineer in Riyadh for founders and business owners. I build your website, platform or app from idea to launch, with a written scope and public starting prices. First call free.',
     ],
     'services' => [
         'title' => 'Software Engineering & Development Services | Baraa Aldomani, Riyadh',
-        'description' => 'Custom systems, web & mobile apps, professional websites, integrations, and APIs, from a freelance software engineer based in Riyadh, Saudi Arabia.',
+        'description' => 'Six kinds of project with public starting prices and clear timelines: websites, stores and booking platforms, management systems, mobile apps, API integrations and AI automation. From a freelance software engineer in Riyadh.',
     ],
     'projects' => [
         'title' => 'Projects & Case Studies | Baraa Aldomani',
-        'description' => 'Delivered projects with a clear methodology: challenge, solution, and result. Systems, apps, and platforms built for clients across government, healthcare, education, and commerce.',
+        'description' => 'Real projects that are live today: a diwaniya booking platform, a finishing and renovation platform, and sites for independent professionals. Each with its story: challenge, solution, result.',
     ],
     'about' => [
         'title' => 'About, Freelance Software Engineer | Baraa Aldomani',

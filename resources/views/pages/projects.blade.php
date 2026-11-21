@@ -9,7 +9,7 @@
         @foreach ($scenes as $project)
             <a href="{{ route('projects.show', ['project' => $project->slug()]) }}" class="proj" data-cursor="{{ __('site.work.open') }}" data-reveal>
                 @if ($project->hasCover())
-                    <x-window :src="$project->coverImage()" :alt="$project->localized('title')" :name="$project->name()" />
+                    <x-window :src="$project->coverImage()" :small="$project->coverSmall()" :alt="$project->localized('title')" :name="$project->name()" />
                 @endif
                 <span class="block">
                     <span class="uml__stereo !justify-start"><span>«{{ __('site.pages.work.kinds.' . $project->kind) }}»</span><span class="num">{{ $project->year }}</span><span>{{ $project->localized('sector') }}</span></span>

@@ -101,3 +101,25 @@ if (! function_exists('accent')) {
         );
     }
 }
+
+if (! function_exists('faq_items')) {
+    /**
+     * The visible FAQ (lang site.faq.items) with the price guide filled in:
+     * ":site_from" and friends become the current numbers from
+     * config/pricing.php, so an answer never drifts from the price list.
+     *
+     * @return array<int, array{q: string, a: string}>
+     */
+    function faq_items(): array
+    {
+        $tokens = [];
+        foreach ((array) config('pricing.offers') as $key => $offer) {
+            $tokens[":{$key}_from"] = number_format($offer['from']);
+        }
+
+        return array_map(
+            fn (array $qa): array => ['q' => $qa['q'], 'a' => strtr($qa['a'], $tokens)],
+            (array) __('site.faq.items'),
+        );
+    }
+}

@@ -8,7 +8,8 @@ use Illuminate\Http\Response;
 final class SitemapController
 {
     /** Static routes that exist in every locale. */
-    private const STATIC_ROUTES = ['home', 'services', 'projects.index', 'about', 'contact', 'blog.index'];
+    // The blog is left out until it has articles: an empty page is not worth a crawl.
+    private const STATIC_ROUTES = ['home', 'services', 'projects.index', 'about', 'contact'];
 
     public function index(): Response
     {
@@ -27,14 +28,14 @@ final class SitemapController
     public function llms(): Response
     {
         return response()
-            ->view('seo.llms')
+            ->view('seo.llms', ['projects' => Project::ordered()->get()])
             ->header('Content-Type', 'text/plain; charset=utf-8');
     }
 
     /**
      * Each entry: ['loc' => url, 'alternates' => [locale => url]].
      *
-     * @return array<int, array{loc: string, alternates: array<string, string>}>
+     * @return array<int, array{loc: string, alternates: array<string, string>, lastmod: ?string}>
      */
     private function urls(): array
     {
@@ -59,7 +60,7 @@ final class SitemapController
     /**
      * @param array<string, string> $params
      * @param array<int, string> $locales
-     * @return array{loc: string, alternates: array<string, string>}
+     * @return array{loc: string, alternates: array<string, string>, lastmod: ?string}
      */
     private function entry(string $name, array $params, array $locales, ?Project $project = null): array
     {
@@ -70,6 +71,6 @@ final class SitemapController
                 : route($name, ['locale' => $locale]);
         }
 
-        return ['loc' => route($name, $params), 'alternates' => $alternates];
+        return ['loc' => route($name, $params), 'alternates' => $alternates, 'lastmod' => $project?->updated_at?->toDateString()];
     }
 }

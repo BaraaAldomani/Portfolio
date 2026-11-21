@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Project;
+use App\Support\Seo\JsonLd;
 use App\Support\Seo\PageMeta;
 use Illuminate\View\View;
 
@@ -10,9 +11,11 @@ final class ProjectsController
 {
     public function index(): View
     {
+        $projects = Project::ordered()->get();
+
         return view('pages.projects', [
-            'meta' => PageMeta::fromLang('projects'),
-            'projects' => Project::ordered()->get(),
+            'meta' => PageMeta::fromLang('projects', [JsonLd::projectList($projects)]),
+            'projects' => $projects,
         ]);
     }
 
@@ -29,6 +32,8 @@ final class ProjectsController
                 $model->localized('title'),
                 $model->localized('summary'),
                 $model->slugsByLocale(),
+                [JsonLd::project($model, route('projects.show', ['locale' => app()->getLocale(), 'project' => $model->slug()]))],
+                $model->hasCover() ? $model->coverImage() : null,
             ),
             'project' => $model,
             'next' => $next,

@@ -264,20 +264,35 @@ export function mountBoard(root, { reduced = false } = {}) {
     const ideas = cfg.ideas || [];
 
     // ── Pictures: one screenshot per project (and its phone), nothing more ──
+    // Asking for a picture and drawing it are separate: the hero's pictures
+    // are asked for straight away, the stations' only once the page has
+    // settled (or the reader is already on the way), so the first screen
+    // never waits behind pictures that are four screens down.
     const pictures = new Map();
-    const picture = (url) => {
-        if (!url) return null;
-        if (!pictures.has(url)) {
-            const img = new Image();
-            img.decoding = 'async';
-            img.src = url;
-            pictures.set(url, img);
-        }
-        const img = pictures.get(url);
-        return img.complete && img.naturalWidth ? img : null;
+    const request = (url) => {
+        if (!url || pictures.has(url)) return;
+        const img = new Image();
+        img.decoding = 'async';
+        img.src = url;
+        pictures.set(url, img);
     };
-    world.plots.forEach((p) => [p.image, p.phone, p.plan].forEach(picture));
-    ideas.forEach((idea) => picture(idea.image));
+    const picture = (url) => {
+        const img = url ? pictures.get(url) : null;
+        return img && img.complete && img.naturalWidth ? img : null;
+    };
+    // Screens that cannot show more than 1600 pixels of a screenshot get the lighter copy.
+    let lean = true;
+    const coverOf = (plot) => (lean ? plot.small || plot.image : plot.image);
+    const planOf = (plot) => (lean ? plot.planSmall || plot.plan : plot.plan);
+    let warmed = false;
+    const warm = () => {
+        warmed = true;
+        world.plots.forEach((p) => [coverOf(p), p.phone, planOf(p)].forEach(request));
+    };
+    ideas.forEach((idea) => request(idea.image));
+    const settle = () => (window.requestIdleCallback ? window.requestIdleCallback(warm, { timeout: 2500 }) : setTimeout(warm, 1200));
+    if (document.readyState === 'complete') settle();
+    else window.addEventListener('load', settle, { once: true });
 
     // Rouaa: the swatches decide the tints of the three phones.
     const rouaa = stations.find((s) => s.name === 'rouaa');
@@ -294,6 +309,8 @@ export function mountBoard(root, { reduced = false } = {}) {
         view.H = window.innerHeight;
         view.small = view.W < 900;
         view.dpr = Math.min(window.devicePixelRatio || 1, 2);
+        lean = view.W * view.dpr <= 2000;
+        if (warmed) warm();
         canvas.width = Math.round(view.W * view.dpr);
         canvas.height = Math.round(view.H * view.dpr);
         keys = buildKeys(world, stations, contentCount, view, rtl);
@@ -894,7 +911,8 @@ export function mountBoard(root, { reduced = false } = {}) {
         const x = plot.x - PLOT.w / 2;
         const y = plot.y - total / 2;
         const built = local >= 1 ? 1 : smooth(local, 0.48, 0.76);
-        const shot = picture(plot.image);
+        if (!warmed) warm(); // already here before the page settled
+        const shot = picture(coverOf(plot));
 
         // Where the line comes in: the logo's arrowhead. Where it leaves: a ring.
         ctx.fillStyle = ink.line;
@@ -956,7 +974,7 @@ export function mountBoard(root, { reduced = false } = {}) {
                 return;
             }
 
-            const plan = plot.plan ? picture(plot.plan) : null;
+            const plan = picture(planOf(plot));
             if (plan) {
                 // Its own blueprint, wiped into the real site from the side the pen came in.
                 const cut = bx + bw - built * bw;

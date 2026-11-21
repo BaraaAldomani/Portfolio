@@ -166,7 +166,7 @@ return [
         'tag' => 'Asked often',
         'title' => 'Before you *ask*.',
         'items' => [
-            ['q' => 'How much will my project cost?', 'a' => 'It depends on its size. The prices on the services page are starting points, and after a short call I send you a written, fixed-price quote.'],
+            ['q' => 'How much will my project cost?', 'a' => 'It depends on its size. A professional website starts from :site_from SAR, a store or booking platform from :platform_from SAR, a custom management system from :system_from SAR, and a mobile app from :app_from SAR. Those are starting points; after a short call I send you a written, fixed-price quote.'],
             ['q' => 'How long does it take?', 'a' => 'A professional website takes one to two weeks. Systems and platforms take one to three months depending on size. The timeline is written in the quote and I keep to it.'],
             ['q' => 'Do I own the code and the site after delivery?', 'a' => 'Yes. The code, the domain and the hosting are all in your name, and you receive everything at delivery.'],
             ['q' => 'Do you work with clients outside Riyadh?', 'a' => 'Yes. I am based in Riyadh and work remotely with clients across Saudi Arabia and abroad.'],
@@ -256,6 +256,7 @@ return [
             'similar_cta' => 'Let us talk about it',
         ],
         'about' => [
+            'short' => 'In short',
             'tag' => 'About',
             'experience' => 'Where I have worked',
             'can' => 'What I can build for you',

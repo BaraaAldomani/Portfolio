@@ -8,19 +8,25 @@ final readonly class PageMeta
 {
     /**
      * @param array<string, string> $alternates locale => absolute URL, used for hreflang + language switcher
+     * @param string|null $image absolute URL of the picture to show when the page is shared
+     * @param array<int, array<string, mixed>> $schema extra schema.org nodes this page adds to the site graph
      */
     public function __construct(
         public string $title,
         public string $description,
         public array $alternates,
         public string $canonical,
+        public ?string $image = null,
+        public array $schema = [],
     ) {
     }
 
     /**
      * Build meta for a static page from lang/{locale}/seo.php keys.
+     *
+     * @param array<int, array<string, mixed>> $schema
      */
-    public static function fromLang(string $page): self
+    public static function fromLang(string $page, array $schema = [], ?string $image = null): self
     {
         $alternates = self::alternatesFor(Route::currentRouteName(), []);
 
@@ -29,6 +35,8 @@ final readonly class PageMeta
             description: setting_text("seo.{$page}_description", "seo.{$page}.description"),
             alternates: $alternates,
             canonical: $alternates[app()->getLocale()],
+            image: $image,
+            schema: $schema,
         );
     }
 
@@ -37,12 +45,13 @@ final readonly class PageMeta
      * route params per locale (e.g. each language's slug).
      *
      * @param array<string, array<string, string>> $paramsByLocale
+     * @param array<int, array<string, mixed>> $schema
      */
-    public static function forContent(string $title, string $description, array $paramsByLocale): self
+    public static function forContent(string $title, string $description, array $paramsByLocale, array $schema = [], ?string $image = null): self
     {
         $alternates = self::alternatesFor(Route::currentRouteName(), $paramsByLocale);
 
-        return new self($title, $description, $alternates, $alternates[app()->getLocale()]);
+        return new self($title, $description, $alternates, $alternates[app()->getLocale()], $image, $schema);
     }
 
     /**

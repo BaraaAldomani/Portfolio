@@ -85,6 +85,14 @@ In `app.css`, under "THE KIT":
 - The founder-facing copy (`site.b.*`), prices and FAQ promises are proposals.
 - He does not want videos of the site: send stills and the link.
 
+## Search and sharing
+
+- Every page's `<head>`, share tags and JSON-LD come from `components/layout.blade.php` and `app/Support/Seo/JsonLd.php`. A page adds its own nodes through `PageMeta` (`schema`, `image`).
+- Prices in structured data, the FAQ and `llms.txt` are read from `config/pricing.php`. Never type a price into copy: use the tokens `faq_items()` fills in.
+- Mark questions up as FAQPage only on pages where the visitor can read them.
+- A project cover `name.webp` may have a lighter sibling `name-s.webp` (1600px). `Project::coverSmall()` finds it; the board and `<x-window>` use it on small screens. Dashboard uploads simply fall back to the cover.
+- The board asks for the hero's pictures at once and for the stations' only after the page has loaded.
+
 ## Checking the board
 
 `scratchpad/tools/film.mjs` drives `window.__journey.seek(u, time)` in headless
