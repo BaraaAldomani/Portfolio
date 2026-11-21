@@ -16,6 +16,17 @@ return [
     'primary_url' => env('PRIMARY_URL'),
 
     /*
+     * TEMPORARY (set 21 Nov 2026, remove by setting to null). The host's CDN in
+     * front of baraadom.com stored a few redirects it saw before the move
+     * (/, /ar, /robots.txt -> the old address), so those pages bounced between
+     * the two addresses. A redirect from another host now adds this query
+     * parameter, which makes the address new to the CDN and ends the loop.
+     * Once https://baraadom.com/ar answers 200 on its own (the stored copies
+     * have expired, or the CDN cache was flushed in hPanel), set this to null.
+     */
+    'redirect_marker' => 'moved',
+
+    /*
      * Share pictures have the site's address drawn into them, so each address
      * has its own pair. A host that is not listed uses images/og.png and
      * images/og-en.png.

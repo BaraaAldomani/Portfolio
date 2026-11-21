@@ -24,7 +24,7 @@ class PrimaryHostTest extends TestCase
 
     public function test_any_other_host_is_sent_to_the_same_page_on_the_primary_address(): void
     {
-        config(['portfolio.primary_url' => 'https://baraadom.com']);
+        config(['portfolio.primary_url' => 'https://baraadom.com', 'portfolio.redirect_marker' => null]);
 
         // The older domain, with its path and query kept.
         $moved = $this->get('https://baraa.rakeez-llc.com/ar/about?utm_source=card')
@@ -40,6 +40,20 @@ class PrimaryHostTest extends TestCase
 
         // Files search engines ask for by name move too.
         $this->get('https://baraa.rakeez-llc.com/sitemap.xml')->assertStatus(301)->assertRedirect('https://baraadom.com/sitemap.xml');
+    }
+
+    public function test_a_marker_can_make_the_target_new_to_a_cache_that_holds_an_old_redirect(): void
+    {
+        config(['portfolio.primary_url' => 'https://baraadom.com', 'portfolio.redirect_marker' => 'moved']);
+
+        $this->get('https://baraa.rakeez-llc.com/ar')->assertStatus(301)->assertRedirect('https://baraadom.com/ar?moved=1');
+        $this->get('https://baraa.rakeez-llc.com/ar/about?utm_source=card')
+            ->assertRedirect('https://baraadom.com/ar/about?utm_source=card&moved=1');
+
+        // On the primary address itself the marker changes nothing: same page, clean canonical.
+        $this->get('https://baraadom.com/ar/about?moved=1')
+            ->assertOk()
+            ->assertSee('<link rel="canonical" href="https://baraadom.com/ar/about">', false);
     }
 
     public function test_on_the_primary_address_every_link_the_site_writes_uses_it(): void
