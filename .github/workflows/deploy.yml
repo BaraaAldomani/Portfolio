@@ -41,10 +41,11 @@ jobs:
       # link the site writes uses it (app/Http/Middleware/PrimaryHost.php).
       # Change it only after the new address already serves this folder: the
       # deploy refuses otherwise.
-      PRIMARY_URL: https://baraa.rakeez-llc.com
+      PRIMARY_URL: https://baraadom.com
       # Other domains on the same hosting account that serve this same folder
       # (space separated). scripts/link-alias.sh links each one's public_html
-      # to DEPLOY_PATH.
+      # to DEPLOY_PATH. The install lives in the folder of the first domain,
+      # baraa.rakeez-llc.com, which now only redirects here.
       ALIAS_DOMAINS: baraadom.com
     steps:
       - name: Checkout
