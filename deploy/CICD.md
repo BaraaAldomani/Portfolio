@@ -186,5 +186,11 @@ address (LinkedIn, GitLab, client-site credits).
 Share pictures have the address drawn into them: add a pair for the new host
 under `share_images` in `config/portfolio.php`.
 
+The new domain may sit behind the host's CDN, which keeps a redirect it has
+seen for about five minutes. The site's own host redirect is sent `no-store`
+for that reason, and the deploy's checks add a query so they never read a
+stored copy. If pages bounce between the two addresses right after a switch,
+flush the CDN cache in hPanel or wait those few minutes.
+
 To undo the link: `rm ~/domains/<domain>/public_html && mv ~/domains/<domain>/public_html.before-alias ~/domains/<domain>/public_html`.
 To undo the switch: set `PRIMARY_URL` back and push.

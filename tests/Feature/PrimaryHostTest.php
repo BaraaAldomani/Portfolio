@@ -27,9 +27,13 @@ class PrimaryHostTest extends TestCase
         config(['portfolio.primary_url' => 'https://baraadom.com']);
 
         // The older domain, with its path and query kept.
-        $this->get('https://baraa.rakeez-llc.com/ar/about?utm_source=card')
+        $moved = $this->get('https://baraa.rakeez-llc.com/ar/about?utm_source=card')
             ->assertStatus(301)
             ->assertRedirect('https://baraadom.com/ar/about?utm_source=card');
+
+        // No cache in between may keep it: a CDN that held the redirect of the
+        // day before a move sent visitors round in a circle (21 Nov 2026).
+        $this->assertStringContainsString('no-store', $moved->headers->get('Cache-Control'));
 
         // www and plain http of the new one.
         $this->get('http://www.baraadom.com/en')->assertStatus(301)->assertRedirect('https://baraadom.com/en');

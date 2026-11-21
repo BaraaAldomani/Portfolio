@@ -104,7 +104,8 @@ jobs:
             "grep -E '^PRIMARY_URL=' '$DEPLOY_PATH/.env' 2>/dev/null | head -n 1 | cut -d= -f2-" | tr -d "'\r" || true)"
           if [ -n "$current" ] && [ "$current" != "$PRIMARY_URL" ]; then
             echo "Primary address changes: $current -> $PRIMARY_URL"
-            if ! curl -fsSL -m 30 -A 'Mozilla/5.0 (deploy check)' "$PRIMARY_URL/robots.txt" | grep -q '^Sitemap:'; then
+            # The query makes the request new to any cache in front of the site.
+            if ! curl -fsSL -m 30 -A 'Mozilla/5.0 (deploy check)' "$PRIMARY_URL/robots.txt?deploy=$GITHUB_SHA" | grep -q '^Sitemap:'; then
               echo "::error::$PRIMARY_URL does not serve this site yet. Link the domain (ALIAS_DOMAINS), deploy, check it, then change PRIMARY_URL."
               exit 1
             fi
@@ -170,5 +171,5 @@ jobs:
           # What each address answers now (informative: never fails the deploy).
           for host in "$PRIMARY_URL" $(printf 'https://%s ' $ALIAS_DOMAINS); do
             printf '%s/ar -> ' "$host"
-            curl -s -o /dev/null -m 30 -A 'Mozilla/5.0 (deploy check)' -w '%{http_code} %{redirect_url}\n' "$host/ar" || echo 'no answer'
+            curl -s -o /dev/null -m 30 -A 'Mozilla/5.0 (deploy check)' -w '%{http_code} %{redirect_url}\n' "$host/ar?deploy=$GITHUB_SHA" || echo 'no answer'
           done

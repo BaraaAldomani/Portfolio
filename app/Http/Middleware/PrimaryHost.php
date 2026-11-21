@@ -36,7 +36,12 @@ final class PrimaryHost
         if (strcasecmp($request->getHost(), $host) !== 0) {
             $query = $request->getQueryString();
 
-            return redirect()->away($primary . $request->getPathInfo() . ($query ? '?' . $query : ''), 301);
+            // Never stored by a cache in between: when the primary address
+            // changes, a CDN that kept yesterday's redirect would send visitors
+            // back and forth between the two addresses.
+            return redirect()
+                ->away($primary . $request->getPathInfo() . ($query ? '?' . $query : ''), 301)
+                ->header('Cache-Control', 'no-store, max-age=0');
         }
 
         return $next($request);
